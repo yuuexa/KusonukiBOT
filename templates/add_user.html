@@ -1,0 +1,58 @@
+{% extends "common/layout.html" %}
+
+{% block content %}
+<div class="container mt-5 mb-5 d-flex justify-content-center">
+	<div class="card px-1 py-4" style="width: 400px;">
+		<div class="card-body">
+			<h6 class="card-title mb-3">ユーザー登録</h6>
+			<form action="/add_user" method="POST">
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="form-group">
+							<input name="name" class="form-control" type="text" placeholder="名前"></input>
+						</div>
+					</div>
+				</div>
+				<div class="row mt-2">
+					<div class="col-sm-12">
+						<div class="form-group">
+							<input name="avatar" class="form-control" type="text" placeholder="アバター"></input>
+						</div>
+					</div>
+				</div>
+				<div class="row mt-2">
+					<div class="col-sm-12">
+						<div class="form-group">
+							<div class="btn-group" role="group" aria-label="available toggle">
+								<input type="radio" class="btn-check" name="available" id="available1" autocomplete="off" value="false" checked>
+								<label class="btn btn-outline-primary" for="available1">許可</label>
+								<input type="radio" class="btn-check" name="available" id="available2" autocomplete="off" value="true">
+								<label class="btn btn-outline-primary" for="available2">禁止</label>
+							</div>
+						</div>
+					</div>
+				</div>
+                <div class="row mt-2">
+					<div class="col-sm-12">
+						<div class="form-group">
+							<input name="year" min="0"  class="form-control" type="number" placeholder="学年"></input>
+						</div>
+					</div>
+				</div>
+				<div class="row mt-2">
+					<div class="col-sm-12">
+						<div class="form-group">
+							<input name="group" class="form-control" type="text" placeholder="クラス"></input>
+						</div>
+					</div>
+				</div>
+				<div class="row mt-3">
+					<div class="col text-center">
+						<button type="submit" class="btn btn-primary">ユーザー追加</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}
