@@ -1,0 +1,36 @@
+{% extends "common/layout.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user_list.css') }}"/>
+<div class="container">
+    <h2>ユーザー一覧</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">名前</th>
+                <th scope="col">クラス</th>
+                <th scope="col">権限</th>
+            </tr>
+        </thead>
+            <tbody>
+            {% for user in users %}
+            <tr>
+                <td>
+                    <a href="{{ url_for('user_detail', id=user.id) }}">
+                        <img class="user-icon" src="{{ user.avatar }}">
+                        <p class="user-name">{{ user.name }}</p>
+                    </a>
+                </td>
+                <td>{{ user.year }}{{ user.group }}</td>
+                <td>{{ user.role }}</td>
+                <!-- {% if user.available == 1 %}
+                    <td>許可</td>
+                {% else %}
+                    <td>禁止</td>
+                {% endif %} -->
+            </tr>
+            {% endfor %}
+          </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}"/>
+        <title>くそぬきbot</title>
+    </head>
+      <body>
+        <header>
+            <img src="../../static/images/くそぬきbot.svg">
+            <div class="hamburger-menu">
+                <input type="checkbox" id="menu-btn-check">
+                <label for="menu-btn-check" class="menu-btn"><span></span></label>
+                <!--ここからメニュー-->
+                <div class="menu-content">
+                    <ul>
+                        <li>
+                            <a href="{{ url_for('add_assignment') }}"><i class="fa-solid fa-circle-plus"></i>課題追加</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('add_quiz') }}"><i class="fa-solid fa-circle-plus"></i>小テスト追加</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('add_examination') }}"><i class="fa-solid fa-circle-plus"></i>試験範囲追加</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('add_image') }}"><i class="fa-solid fa-circle-plus"></i>写真追加</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('add_timetable') }}"><i class="fa-solid fa-circle-plus"></i>時間割追加</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('user_list') }}"><i class="fa-solid fa-table-list"></i>ユーザー一覧</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('assignment_list') }}"><i class="fa-solid fa-table-list"></i>課題一覧</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('quiz_list') }}"><i class="fa-solid fa-table-list"></i>小テスト一覧</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('examination_list') }}"><i class="fa-solid fa-table-list"></i>試験範囲一覧</a>
+                        </li>
+                    </ul>
+                </div>
+                <!--ここまでメニュー-->
+            </div>
+        </header>
+        <div class="background">
+        {% block content %}
+        {% endblock %}
+        </div>
+        <footer>
+            <ul class="footer_menu">
+                <li class="footer_item"><a href="{{ url_for('index') }}"><i class="fas fa-home"></i>ホーム</a></li>
+                <li class="footer_item"><a href="{{ url_for('assignment_list') }}"><i class="fa-solid fa-list-check"></i>課題</a></li>
+                <li class="footer_item"><a href="{{ url_for('quiz_list') }}"><i class="fa-solid fa-square-pen"></i>テスト</a></li>
+            </ul>
+        </footer>
+        <script src="https://kit.fontawesome.com/fb4709c9fe.js" crossorigin="anonymous"></script>
+    </body>
+</html>

@@ -1,0 +1,65 @@
+{% extends "common/layout.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/detail.css') }}"/>
+<div class="container">
+    <div class="sub-grid">
+        <div class="grid-item">
+            <h2>課題の詳細</h2>
+            <div class="assignment-detail">
+                <table class="table">
+                    <tr>
+                        <th>名前</th>
+                        <td>{{ assignment.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>教科</th>
+                        <td>{{ assignment.subject }}</td>
+                    </tr>
+                    <tr>
+                        <th>クラス</th>
+                        <td>{{ assignment.year }}{{ assignment.group }}</td>
+                    </tr>
+                    <tr>
+                        <th>提出期限</th>
+                        <td>{{ assignment.deadline.strftime('%m月%d日') }}</td>
+                    </tr>
+                    <tr>
+                        <th>提出方法</th>
+                        <td>{{ assignment.method }}</td>
+                    </tr>
+                    <tr>
+                        <th>最終更新日時</th>
+                        <td>{{ assignment.updated_at.strftime('%Y年%m月%d日 %H:%M') }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="grid-item">
+            <h2>すべての課題</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">名前</th>
+                        <th scope="col">教科</th>
+                        <th scope="col">提出期限</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                    <tbody>
+                    {% for assignment in assignments %}
+                    <tr>
+                        <td><a class="name" href="{{ url_for('assignment_detail', id=assignment.id) }}">{{ assignment.name }}</a></td>
+                        <td>{{ assignment.subject }} - {{ assignment.group }}組</td>
+                        <td>{{ assignment.deadline.strftime('%m月%d日') }}</td>
+                        <td>
+                            <a class="edit_button" href="{{ url_for('assignment_edit', id=assignment.id) }}" role="button">編集</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
