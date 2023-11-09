@@ -6,7 +6,7 @@
     <form action="/add_quiz" method="POST" class="Form">
         <div class="Form-Item">
             <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>クラス</p>
-            <select name="group" class="Form-Item-Input">
+            <select name="group" class="Form-Item-Input" required>
                 <option value="" hidden>クラスを選択</option>
                 <option value="A">A</option>
                 <option value="B">B</option>
@@ -24,11 +24,11 @@
             <p class="Form-Item-Label">
                 <span class="Form-Item-Label-Required">必須</span>名前
             </p>
-            <input name="name" type="text" class="Form-Item-Input" placeholder="例）p.100-105">
+            <input name="name" type="text" class="Form-Item-Input" placeholder="例）p.100-105" required>
         </div>
         <div class="Form-Item">
             <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>教科</p>
-            <select name="subject" class="Form-Item-Input">
+            <select name="subject" class="Form-Item-Input" required>
                 <option value="" hidden>教科を選択</option>
                 <option value="ヴェリタス">ヴェリタス</option>
                 <option value="言語文化">言語文化</option>
@@ -49,7 +49,7 @@
         </div>
         <div class="Form-Item">
             <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>実施日</p>
-            <input name="implementation_date" type="date" class="Form-Item-Input" value="{{ datetime.datetime.now().strftime('%Y-%m-%d')}}">
+            <input name="implementation_date" type="date" class="Form-Item-Input" value="{{ datetime.datetime.now().strftime('%Y-%m-%d')}}" required>
         </div>
         <input type="submit" class="Form-Btn" value="小テスト追加">
     </form>

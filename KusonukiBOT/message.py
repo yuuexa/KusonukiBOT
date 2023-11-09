@@ -18,7 +18,7 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, ImageMessage, VideoSendMessage, AudioMessage, QuickReplyButton, MessageAction, QuickReply, FlexSendMessage, TemplateSendMessage, CarouselTemplate, CarouselColumn
+    MessageEvent, TextMessage, TextSendMessage, ImageMessage, VideoSendMessage, AudioMessage, QuickReplyButton, MessageAction, QuickReply, FlexSendMessage, TemplateSendMessage, ButtonsTemplate, URIAction
 )
 
 
@@ -60,9 +60,9 @@ def handle_message(event):
     else:
         user = User.query.get(event.source.user_id)
         if message == 'サイト':
-            reply_message = TextSendMessage(text='https://32ef-240d-1a-da0-c200-7d7d-1cfb-5169-a13d.ngrok-free.app/')
+            reply_message = web_button('下記をクリックしてサイトを開きます', '', '')
         elif message == '設定':
-            reply_message = TextSendMessage(text=f'https://32ef-240d-1a-da0-c200-7d7d-1cfb-5169-a13d.ngrok-free.app/users/{event.source.user_id}/edit')
+            reply_message = web_button('下記をクリックして設定を行います', 'setting', event.source.user_id)
         elif message == '課題':
             if len(args) == 1:
                 assignments = Assignment.query.filter(or_(Assignment.group == user.group, Assignment.group == 'ALL'), Assignment.deadline >= datetime.datetime.today()).order_by(desc(Assignment.deadline)).all()
@@ -84,7 +84,10 @@ def handle_message(event):
                     if assignment.subject == args[1]:
                         assignment_list.append(f'⧼ {assignment.name} ⧽\n«教科» {assignment.subject}\n«手段» {assignment.method}\n«提出日時» {assignment.deadline.strftime("%m月%d日")}')
                 items = [QuickReplyButton(action=MessageAction(label = subject, text = f'課題 {subject}')) for subject in subject_list]
-                reply_message = TextSendMessage(text = '\n\n'.join(assignment_list) or '課題なし', quick_reply=QuickReply(items=items))
+                if len(assignment_list) == 0:
+                    reply_message = web_button('課題無し。\n下記から課題を追加できます。', 'assignment', '')
+                else:
+                    reply_message = TextSendMessage(text = '\n\n'.join(assignment_list), quick_reply=QuickReply(items=items))
         elif message == 'テスト範囲':
             type_list = ["今日", "明日", "前期中間", "前期期末", "後期中間", "後期期末"]
             if len(args) == 1:
@@ -99,7 +102,10 @@ def handle_message(event):
                     quiz_list = []
                     for q in quiz:
                         quiz_list.append(f'⧼ {q.name} ⧽\n«教科» {q.subject}')
-                    reply_message = TextSendMessage(text = '\n\n'.join(quiz_list) or '小テスト無し')
+                    if len(quiz_list) == 0:
+                        reply_message = web_button('小テスト無し。\n下記から小テストを追加できます。', 'quiz', '')
+                    else:
+                        reply_message = TextSendMessage(text = '\n\n'.join(quiz_list))
                 else:
                     if len(args) == 2:
                         examination = Examination.query.filter(Examination.term == args[1]).all()
@@ -133,9 +139,9 @@ def handle_message(event):
                 if timetable is not None:
                     reply_message = TextSendMessage(text=f'［ {args[1]} の時間割 ］\n① {timetable.first}\n② {timetable.second}\n③ {timetable.third}\n④ {timetable.forth}\n⑤ {timetable.fifth}')
                 else:
-                    reply_message = TextSendMessage(text='時間割が存在しません')
+                    reply_message = web_button('時間割が存在しません。\n下記から時間割を追加できます。', 'timetable', '')
             else:
-                reply_message = TextSendMessage(text='時間割が存在しません')
+                reply_message = web_button('時間割が存在しません。\n下記から時間割を追加できます。', 'timetable', '')
         elif message == '予定':
             day_list = ["昨日", "今日", "明日"]
             if len(args) == 1:
@@ -161,14 +167,45 @@ def handle_message(event):
                 quiz_ = '\n\n'.join(quiz_list)
                 assignment_ = '\n\n'.join(assignment_list)
                 reply_message = TextSendMessage(text=f"［ {args[1]} の予定 ］\n➝ 課題\n{assignment_ or '課題なし'}\n\n➝ テスト\n{quiz_ or '小テストなし'}")
-        elif message == '時間割作成':
-            day_list = ["A", "B", "C", "D"]
-            if len(args) == 1:
-                items = [QuickReplyButton(action=MessageAction(label = day, text = f'時間割作成 {day}')) for day in day_list]
-                reply_message = TextSendMessage(text='今週は何週ですか？', quick_reply=QuickReply(items=items))
+        # elif message == '時間割作成':
+        #     day_list = ["A", "B", "C", "D"]
+        #     if len(args) == 1:
+        #         items = [QuickReplyButton(action=MessageAction(label = day, text = f'時間割作成 {day}')) for day in day_list]
+        #         reply_message = TextSendMessage(text='今週は何週ですか？', quick_reply=QuickReply(items=items))
+        #     else:
+        #         create_timetable(args[1])
+        #         reply_message = TextMessage(text = f'時間割を作成しました')
+        elif message == '権限編集':
+            if not is_admin(event.source.user_id):
+                reply_message = TextMessage(text = f'管理者のみ実行可能です')
+            elif len(args) == 1:
+                reply_message = TextMessage(text = f'ユーザーIDを入力してください')
+            elif len(args) == 2:
+                role_list = ['DEFAULT', 'EDITOR', 'ADMINISTRATOR']
+                items = [QuickReplyButton(action=MessageAction(label = role, text = f'権限編集 {args[1]} {role}')) for role in role_list]
+                reply_message = TextSendMessage(text='権限を選択してください', quick_reply=QuickReply(items=items))
             else:
-                create_timetable(args[1])
-                reply_message = TextMessage(text = f'時間割を作成しました')
+                user = User.query.get(args[1])
+                user.role = args[2]
+                db.session.merge(user)
+                db.session.commit()
+                reply_message = TextSendMessage(text=f'{user.name} の権限を {args[2]} に変更しました')
+        elif message == '削除':
+            if not is_admin(event.source.user_id):
+                reply_message = TextMessage(text = f'管理者のみ実行可能です')
+            elif len(args) == 1:
+                reply_message = TextMessage(text = f'削除するテーブルを入力してください')
+            elif len(args) == 2:
+                reply_message = TextMessage(text = f'削除するデータのIDを入力してください')
+            else:
+                if args[1] == '課題':
+                    data = Assignment.query.get(args[2]).name
+                    db.session.query(Assignment).filter(Assignment.id == args[2]).delete()
+                elif args[1] == '小テスト':
+                    data = Quiz.query.get(args[2]).name
+                    db.session.query(Quiz).filter(Quiz.id == args[2]).delete()
+                db.session.commit()
+                reply_message = TextMessage(text = f'{data} を削除しました')
         else:
             reply_message = None
 
@@ -206,6 +243,14 @@ def user_available(user_id):
 
     return available
 
+def is_admin(user_id):
+    user = User.query.get(user_id)
+    print(user.role == 'ADMINISTRATOR')
+    if user.role == 'ADMINISTRATOR':
+        return True
+    else:
+        return False
+
 def user_register(user_id, event, profile):
     user = User.query.get(user_id)
     if not user:
@@ -228,33 +273,59 @@ def user_updater(user_id, event, profile):
     db.session.merge(user)
     db.session.commit()
 
-weekday = [
-    '月', '火', '水', '木', '金', '土', '日'
-]
-weeks = [
-    'C', 'D'
-]
+def web_button(content, flag, arg):
+    url = "https://4e25-240d-1a-da0-c200-384a-b24a-e37b-93df.ngrok-free.app"
+    link = url
+    if flag == 'timetable':
+        link = f"{url}/add_timetable"
+    elif flag == 'assignment':
+        link = f"{url}/add_assignment"
+    elif flag == 'quiz':
+        link = f"{url}/add_quiz"
+    elif flag == 'setting':
+        link = f"{url}/users/{arg}/edit"
+    message_template = TemplateSendMessage(
+        alt_text="くそぬきBOT管理サイト",
+        template=ButtonsTemplate(
+            text=content,
+            title="くそぬきBOT管理サイト",
+            actions=[
+                URIAction(
+                    uri=link,
+                    label="ここをクリック"
+                )
+            ]
+        )
+    )
+    return message_template
 
-def create_timetable(week_flag):
-    today = datetime.date.today()
-    if not week_flag == '作成しない':
-        for x in range(4):
-            for i in weeks:
-                for j in weekday:
-                    if week_flag == 'D':
-                        day = today + datetime.timedelta(days=weekday.index(j) - today.weekday() + 7 + (7 * x))
-                        if i == 'D':
-                            day = today + datetime.timedelta(days= weekday.index(j) - today.weekday() + (7 * x))
-                    else:
-                        day = today + datetime.timedelta(days= weekday.index(j) - today.weekday() + (7 * x))
-                        if i == 'C':
-                            day = today + datetime.timedelta(days= weekday.index(j) - today.weekday() + 7 + (7 * x))
-                    if j == '土' or j == '日':
-                        break
+# weekday = [
+#     '月', '火', '水', '木', '金', '土', '日'
+# ]
+# weeks = [
+#     'C', 'D'
+# ]
 
-                    day = Day(
-                        date = day,
-                        week = i + j,
-                    )
-                    db.session.add(day)
-                    db.session.commit()
+# def create_timetable(week_flag):
+#     today = datetime.date.today()
+#     if not week_flag == '作成しない':
+#         for x in range(4):
+#             for i in weeks:
+#                 for j in weekday:
+#                     if week_flag == 'D':
+#                         day = today + datetime.timedelta(days=weekday.index(j) - today.weekday() + 7 + (7 * x))
+#                         if i == 'D':
+#                             day = today + datetime.timedelta(days= weekday.index(j) - today.weekday() + (7 * x))
+#                     else:
+#                         day = today + datetime.timedelta(days= weekday.index(j) - today.weekday() + (7 * x))
+#                         if i == 'C':
+#                             day = today + datetime.timedelta(days= weekday.index(j) - today.weekday() + 7 + (7 * x))
+#                     if j == '土' or j == '日':
+#                         break
+
+#                     day = Day(
+#                         date = day,
+#                         week = i + j,
+#                     )
+#                     db.session.add(day)
+#                     db.session.commit()

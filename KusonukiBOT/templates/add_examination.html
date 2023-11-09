@@ -8,17 +8,17 @@
             <p class="Form-Item-Label">
                 <span class="Form-Item-Label-Required">必須</span>範囲
             </p>
-            <input name="name" type="text" class="Form-Item-Input" placeholder="例）p.100-105">
+            <input name="name" type="text" class="Form-Item-Input" placeholder="例）p.100-105" required>
         </div>
         <div class="Form-Item">
             <p class="Form-Item-Label">
                 <span class="Form-Item-Label-Required">必須</span>媒体
             </p>
-            <input name="medium" type="text" class="Form-Item-Input" placeholder="例）教科書">
+            <input name="medium" type="text" class="Form-Item-Input" placeholder="例）教科書" required>
         </div>
         <div class="Form-Item">
             <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>教科</p>
-            <select name="subject" class="Form-Item-Input">
+            <select name="subject" class="Form-Item-Input" required>
                 <option value="" hidden>教科を選択</option>
                 <option value="言語文化">言語文化</option>
                 <option value="現代の国語">現代の国語</option>
@@ -37,7 +37,7 @@
         </div>
         <div class="Form-Item">
             <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>学期</p>
-            <select name="term" class="Form-Item-Input">
+            <select name="term" class="Form-Item-Input" required>
                 <option value="" hidden>学期を選択</option>
                 <option value="前期中間">前期中間</option>
                 <option value="前期期末">前期期末</option>

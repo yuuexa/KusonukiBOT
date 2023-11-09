@@ -8,7 +8,7 @@
             <form action="{{ url_for('assignment_update', id=assignment.id) }}" method="POST" class="Form">
                 <div class="Form-Item">
                     <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>クラス</p>
-                    <select name="group" class="Form-Item-Input">
+                    <select name="group" class="Form-Item-Input" required>
                         <option value="{{ assignment.group }}" hidden>{{ assignment.group }}</option>
                         <option value="A">A</option>
                         <option value="B">B</option>
@@ -26,11 +26,11 @@
                     <p class="Form-Item-Label">
                         <span class="Form-Item-Label-Required">必須</span>名前
                     </p>
-                    <input name="name" type="text" class="Form-Item-Input" value="{{ assignment.name }}">
+                    <input name="name" type="text" class="Form-Item-Input" value="{{ assignment.name }}" required>
                 </div>
                 <div class="Form-Item">
                     <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>教科</p>
-                    <select name="subject" class="Form-Item-Input">
+                    <select name="subject" class="Form-Item-Input" required>
                         <option value="{{ assignment.subject }}" hidden>{{ assignment.subject }}</option>
                         <option value="ヴェリタス">ヴェリタス</option>
                         <option value="言語文化">言語文化</option>
@@ -51,7 +51,7 @@
                 </div>
                 <div class="Form-Item">
                     <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>提出方法</p>
-                    <select name="method" class="Form-Item-Input">
+                    <select name="method" class="Form-Item-Input" required>
                         <option value="{{ assignment.method }}" hidden>{{ assignment.method }}</option>
                         <option value="クラスルーム">クラスルーム</option>
                         <option value="直接提出">直接提出</option>
@@ -62,7 +62,7 @@
                 </div>
                 <div class="Form-Item">
                     <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>期限</p>
-                    <input name="deadline" type="date" class="Form-Item-Input" min="{{ datetime.datetime.now().strftime('%Y-%m-%d') }}" value="{{ assignment.deadline.strftime('%Y-%m-%d') }}">
+                    <input name="deadline" type="date" class="Form-Item-Input" min="{{ datetime.datetime.now().strftime('%Y-%m-%d') }}" value="{{ assignment.deadline.strftime('%Y-%m-%d') }}" required>
                 </div>
                 <input type="submit" class="Form-Btn" value="課題編集">
             </form>
