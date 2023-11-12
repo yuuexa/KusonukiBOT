@@ -97,8 +97,8 @@ def post_user():
 # assignment
 @app.route('/assignments')
 def assignment_list():
-    assignments_today = Assignment.query.filter(Assignment.deadline >= datetime.date.today()).all()
-    assignments_yesterday = Assignment.query.filter(Assignment.deadline < datetime.date.today()).all()
+    assignments_today = Assignment.query.filter(Assignment.deadline >= datetime.date.today()).order_by(Assignment.deadline).all()
+    assignments_yesterday = Assignment.query.filter(Assignment.deadline < datetime.date.today()).order_by(Assignment.deadline).all()
     assignments = Assignment.query.order_by(Assignment.deadline).all()
     return render_template('assignment_list.html', assignments_today=assignments_today, assignments_yesterday=assignments_yesterday, assignments=assignments)
 

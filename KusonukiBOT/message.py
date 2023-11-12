@@ -274,7 +274,7 @@ def user_updater(user_id, event, profile):
     db.session.commit()
 
 def web_button(content, flag, arg):
-    url = "https://4e25-240d-1a-da0-c200-384a-b24a-e37b-93df.ngrok-free.app"
+    url = config.WEBHOOK_URI
     link = url
     if flag == 'timetable':
         link = f"{url}/add_timetable"
