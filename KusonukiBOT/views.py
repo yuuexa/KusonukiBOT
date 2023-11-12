@@ -24,7 +24,7 @@ def load_user(user_id):
 @app.route('/')
 def index():
     day = datetime.datetime.today() + datetime.timedelta(days=1)
-    assignments = Assignment.query.filter(Assignment.deadline >= datetime.datetime.now()).all()
+    assignments = Assignment.query.filter(Assignment.deadline >= datetime.datetime.today).order_by(Assignment.deadline).all()
     timetable_c = Timetable.query.filter(Timetable.week_day == f'C{weekday[day.weekday()]}').first()
     timetable_d = Timetable.query.filter(Timetable.week_day == f'D{weekday[day.weekday()]}').first()
     return render_template('index.html', assignments=assignments, timetable_c=timetable_c, timetable_d=timetable_d, datetime=datetime, len=len)
