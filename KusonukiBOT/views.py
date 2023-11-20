@@ -24,10 +24,15 @@ def load_user(user_id):
 @app.route('/')
 def index():
     day = datetime.datetime.today() + datetime.timedelta(days=1)
-    assignments = Assignment.query.filter(Assignment.deadline >= datetime.datetime.today).order_by(Assignment.deadline).all()
+    assignments = Assignment.query.filter(Assignment.deadline >= datetime.datetime.today()).order_by(Assignment.deadline, Assignment.name).all()
+    assignments_today = Assignment.query.filter(Assignment.deadline == datetime.datetime.today().strftime('%Y-%m-%d')).order_by(Assignment.deadline, Assignment.name).all()
+    assignments_today_list = []
+    for i in assignments_today:
+        assignments_today_list.append(i.name)
+    print(', '.join(assignments_today_list))
     timetable_c = Timetable.query.filter(Timetable.week_day == f'C{weekday[day.weekday()]}').first()
     timetable_d = Timetable.query.filter(Timetable.week_day == f'D{weekday[day.weekday()]}').first()
-    return render_template('index.html', assignments=assignments, timetable_c=timetable_c, timetable_d=timetable_d, datetime=datetime, len=len)
+    return render_template('index.html', assignments_today_list=', '.join(assignments_today_list), assignments=assignments, timetable_c=timetable_c, timetable_d=timetable_d, datetime=datetime, len=len)
 
 @app.route('/forms')
 def forms():
@@ -97,21 +102,21 @@ def post_user():
 # assignment
 @app.route('/assignments')
 def assignment_list():
-    assignments_today = Assignment.query.filter(Assignment.deadline >= datetime.date.today()).order_by(Assignment.deadline).all()
-    assignments_yesterday = Assignment.query.filter(Assignment.deadline < datetime.date.today()).order_by(Assignment.deadline).all()
-    assignments = Assignment.query.order_by(Assignment.deadline).all()
+    assignments_today = Assignment.query.filter(Assignment.deadline >= datetime.date.today()).order_by(Assignment.deadline, Assignment.name).all()
+    assignments_yesterday = Assignment.query.filter(Assignment.deadline < datetime.date.today()).order_by(Assignment.deadline, Assignment.name).all()
+    assignments = Assignment.query.order_by(Assignment.deadline, Assignment.name).all()
     return render_template('assignment_list.html', assignments_today=assignments_today, assignments_yesterday=assignments_yesterday, assignments=assignments)
 
 @app.route('/assignment/<id>')
 def assignment_detail(id):
     assignment = Assignment.query.get_or_404(id)
-    assignments = Assignment.query.order_by(Assignment.deadline).all()
+    assignments = Assignment.query.order_by(Assignment.deadline, Assignment.name).all()
     return render_template('assignment_detail.html', assignment=assignment, assignments=assignments)
 
 @app.get('/assignment/<id>/edit')
 def assignment_edit(id):
     assignment = Assignment.query.get(id)
-    assignments = Assignment.query.order_by(Assignment.deadline).all()
+    assignments = Assignment.query.order_by(Assignment.deadline, Assignment.name).all()
     return render_template('assignment_edit.html', assignments=assignments, assignment=assignment, datetime=datetime)
 
 @app.post('/assignment/<id>/update')
@@ -157,21 +162,21 @@ def post_assignment():
 # quiz
 @app.route('/quiz')
 def quiz_list():
-    quiz_today = Quiz.query.filter(Quiz.implementation_date >= datetime.date.today()).order_by(Quiz.implementation_date).all()
-    quiz_yesterday = Quiz.query.filter(Quiz.implementation_date < datetime.date.today()).order_by(Quiz.implementation_date).all()
-    quiz = Quiz.query.order_by(Quiz.implementation_date).all()
+    quiz_today = Quiz.query.filter(Quiz.implementation_date >= datetime.date.today()).order_by(Quiz.implementation_date, Quiz.name).all()
+    quiz_yesterday = Quiz.query.filter(Quiz.implementation_date < datetime.date.today()).order_by(Quiz.implementation_date, Quiz.name).all()
+    quiz = Quiz.query.order_by(Quiz.implementation_date, Quiz.name).all()
     return render_template('quiz_list.html', quiz_today=quiz_today, quiz_yesterday=quiz_yesterday, quiz=quiz)
 
 @app.route('/quiz/<id>')
 def quiz_detail(id):
     quiz = Quiz.query.get_or_404(id)
-    quiz_all = Quiz.query.order_by(Quiz.implementation_date).all()
+    quiz_all = Quiz.query.order_by(Quiz.implementation_date, Quiz.name).all()
     return render_template('quiz_detail.html', quiz=quiz, quiz_all=quiz_all)
 
 @app.get('/quiz/<id>/edit')
 def quiz_edit(id):
     quiz = Quiz.query.get(id)
-    quiz_all = Quiz.query.order_by(Quiz.implementation_date).all()
+    quiz_all = Quiz.query.order_by(Quiz.implementation_date, Quiz.name).all()
     return render_template('quiz_edit.html', quiz=quiz, quiz_all=quiz_all, datetime=datetime)
 
 @app.post('/quiz/<id>/update')
@@ -179,7 +184,8 @@ def quiz_update(id):
     quiz = Quiz.query.get(id)  # 更新するデータをDBから取得
     quiz.name = request.form.get('name')  # str
     quiz.subject = request.form.get('subject')  # str
-    quiz.implementation_date = datetime.datetime.strptime(request.form.get('implementation_date'), '%Y-%m-%d')# str
+    form_implementation_date = request.form.get('implementation_date')  # str
+    quiz.implementation_date = datetime.datetime.strptime(form_implementation_date, '%Y-%m-%d')
     quiz.group = request.form.get('group', default='G')  # str
     quiz.year = request.form.get('year', default=1, type=int) # int
 
@@ -214,13 +220,13 @@ def post_quiz():
 # examination
 @app.route('/examinations')
 def examination_list():
-    examinations = Examination.query.order_by(Examination.term).all()
+    examinations = Examination.query.order_by(Examination.term, Examination.name).all()
     return render_template('examination_list.html', examinations=examinations)
 
 @app.get('/examination/<id>/edit')
 def examination_edit(id):
     examination = Examination.query.get(id)
-    examinations = Examination.query.order_by(Examination.term, Examination.subject).all()
+    examinations = Examination.query.order_by(Examination.term, Examination.subject, Examination.name).all()
     return render_template('examination_edit.html', examination=examination, examinations=examinations, datetime=datetime)
 
 @app.post('/examination/<id>/update')

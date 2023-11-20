@@ -187,6 +187,18 @@ h1 {
     border-radius: 5px;
     box-shadow: 0 0 1px #16160e;
 }
+.red-grid-item {
+    background-color: #d0576b;
+    color: #ffffff;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 1px #16160e;
+}
+.red-grid-item h3 {
+    padding: 15px;
+    font-size: 15px;
+}
 .table {
     width: 100%;
     text-align: center;

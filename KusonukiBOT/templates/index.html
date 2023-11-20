@@ -3,6 +3,12 @@
 <div class="container">
     <h1>ホーム</h1>
     <div class="main-grid">
+        {% if len(assignments_today_list) > 0 %}
+        <div class="red-grid-item">
+            <h2>今日提出の課題(G組)</h2>
+            <h3>{{ assignments_today_list }}</h3>
+        </div>
+        {% endif %}
         <div class="grid-item">
             <h2>直近の課題(G組)</h2>
             <table class="table">
