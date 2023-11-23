@@ -247,6 +247,24 @@ h1 {
     color: #ffffff;
     opacity: 0.8;
 }
+.search_box {
+    padding: 10px;
+}
+.search_box i {
+    position: absolute;
+    margin: 20px;
+}
+#searchInput {
+    padding: 20px 45px;
+    border: none;
+    outline: 0;
+}
+#searchInput:hover {
+    transition: all 0.4s;
+    background-color: #f3f3f2;
+    box-shadow: #d69090 0 0 1px inset;
+    padding: 20px 45px;
+}
 .form {
     width: 100%;
     padding: 20px 40px;

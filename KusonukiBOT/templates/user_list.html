@@ -4,6 +4,10 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/user_list.css') }}"/>
 <div class="container">
     <h2>ユーザー一覧</h2>
+    <form class="search_box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="searchInput" placeholder="キーワードで検索">
+    </form>
     <table class="table">
         <thead>
             <tr>
