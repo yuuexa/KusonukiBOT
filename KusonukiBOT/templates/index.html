@@ -22,7 +22,7 @@
                     {% if len(assignments) > 0 %}
                     {% for assignment in assignments %}
                     <tr>
-                        <td>{{ assignment.name }}</td>
+                        <td><a class="name" href="{{ url_for('assignment_detail', id=assignment.id) }}">{{ assignment.name }}</a></td>
                         <td>{{ assignment.deadline.strftime('%m月%d日') }}</td>
                     </tr>
                     {% endfor %}
@@ -50,10 +50,10 @@
                 </thead>
                     <tbody>
                     {% if len(quiz) > 0 %}
-                    {% for q in quiz %}
+                    {% for test in quiz %}
                     <tr>
-                        <td>{{ q.name }}</td>
-                        <td>{{ q.subject }}</td>
+                        <td><a class="name" href="{{ url_for('quiz_detail', id=test.id) }}">{{ test.name }}</a></td>
+                        <td>{{ test.subject }}</td>
                     </tr>
                     {% endfor %}
                     {% else %}

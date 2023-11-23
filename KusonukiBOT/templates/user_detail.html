@@ -9,6 +9,12 @@
             <div class="user-detail">
                 <img src="{{ user.avatar }}">
                 <table class="table">
+                    {% if current_user.role == 'ADMINISTRATOR' %}
+                    <tr>
+                        <th>ID</th>
+                        <td>{{ user.id }}</td>
+                    </tr>
+                    {% endif %}
                     <tr>
                         <th>名前</th>
                         <td>{{ user.name }}</td>
