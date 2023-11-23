@@ -19,6 +19,7 @@ body {
     background-color: rgb(219, 220, 220, 0.2)
 }
 header {
+    display: block;
     height: 80px;
     width: 100%;
     position: fixed;
@@ -26,24 +27,23 @@ header {
     border-bottom: solid 1px #16160e;
     box-shadow: 0 0 1px #16160e;
 }
-header img{
+/* header img{
     height: 90px;
-}
+} */
 .dropdown {
-    position: absolute;
+    z-index: 90;
+    margin: 0 5px;
     display: inline-block;
-    top: 0;
-    right: 50%;
 }
 .dropbtn {
     height: 80px;
-    font-size: 40px;
+    font-size: 20px;
     background-color: #ffffff;
     border: none;
     cursor: pointer;
 }
 .dropbtn img {
-    height: 80%;
+    height: 60px;
     border-radius: 50%;
 }
 .dropbtn img:hover {
@@ -297,23 +297,27 @@ h1 {
     opacity: 0.8;
 }
 .search_box {
-    z-index: 99;
     padding: 10px;
 }
 .search_box i {
     position: absolute;
+    z-index: -1;
     margin: 20px;
 }
 #searchInput {
-    padding: 20px 45px;
+    margin: 5px;
+    padding: 15px 15px;
     border: none;
     outline: 0;
+    font-size: 15px;
+    font-weight: bold;
+    font-family: FontAwesome;
 }
 #searchInput:hover {
     transition: all 0.4s;
     background-color: #f3f3f2;
-    box-shadow: #d69090 0 0 1px inset;
-    padding: 20px 45px;
+    box-shadow: #d69090 0 0 2px inset;
+    padding: 15px 25px;
 }
 .form {
     width: 100%;
@@ -465,6 +469,9 @@ h1 {
         margin: auto;
         padding-top: 80px;
         padding-bottom: 80px;
+    }
+    header img{
+        height: 75px;
     }
     .menu-btn {
         position: fixed;
