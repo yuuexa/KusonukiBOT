@@ -1,5 +1,6 @@
 from flask import render_template, request, redirect, url_for, session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+import emoji
 from werkzeug.urls import url_parse
 from sqlalchemy import desc, or_, and_
 from KusonukiBOT import app, db, login

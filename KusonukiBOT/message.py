@@ -268,7 +268,6 @@ def user_register(user_id, event, profile):
 def user_updater(user_id, event, profile):
     user = User.query.get(user_id)
     user.id = event.source.user_id
-    user.name = profile.display_name
     user.avatar = profile.picture_url
     db.session.merge(user)
     db.session.commit()
