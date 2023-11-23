@@ -60,9 +60,9 @@ def handle_message(event):
     else:
         user = User.query.get(event.source.user_id)
         if message == 'サイト':
-            reply_message = web_button('下記をクリックしてサイトを開きます', '', '')
+            reply_message = web_button(f'下記をクリックしてサイトを開きます\n〚ユーザー名〛{profile.display_name}\n〚パスワード〛{event.source.user_id[0:4]}', '', '')
         elif message == '設定':
-            reply_message = web_button('下記をクリックして設定を行います', 'setting', event.source.user_id)
+            reply_message = web_button(f'下記をクリックして設定を行います', 'setting', event.source.user_id)
         elif message == '課題':
             if len(args) == 1:
                 assignments = Assignment.query.filter(or_(Assignment.group == user.group, Assignment.group == 'ALL'), Assignment.deadline >= datetime.datetime.today()).order_by(desc(Assignment.deadline)).all()

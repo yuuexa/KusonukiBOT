@@ -1,7 +1,8 @@
 from flask import render_template, request, redirect, url_for, session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from sqlalchemy import desc
-from KusonukiBOT import app, db
+from werkzeug.urls import url_parse
+from sqlalchemy import desc, or_, and_
+from KusonukiBOT import app, db, login
 from KusonukiBOT.models.user import User
 from KusonukiBOT.models.assignment import Assignment
 from KusonukiBOT.models.timetable import Timetable
@@ -11,51 +12,93 @@ from KusonukiBOT.models.message import Message
 import datetime
 import platform
 
-login_manager = LoginManager()
-login_manager.init_app(app)
 app.config['SECRET_KEY'] = "secret"
 
 weekday = ['月', '火', '水', '木', '金', '月', '月']
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+today = datetime.datetime.today().date()
+
+@login.user_loader
+def load_user(id):
+  return User.query.get(id)
+
+@app.get('/login')
+def login():
+    if current_user.is_authenticated:
+        return redirect('/')
+    else:
+        return render_template('login.html')
+
+@app.post('/login')
+def post_login():
+    username = request.form.get('name')
+    password = request.form.get('password')
+    user = User.query.filter_by(name=username).first()
+    if not user:
+        return redirect('/login')
+    elif user.id[0:4] == password:
+        login_user(user)
+        next_page = request.args.get('next')
+      # 遷移先が存在しない場合もしくはそのurlのnetloc(ファーストレベルのドメイン)がある場合
+        if not next_page or url_parse(next_page).netloc != '':
+            # トップページにリダイレクト
+            next_page = url_for('index')
+        # アクセスしようとしていたページにリダイレクトバック
+        return redirect(next_page)
+    else:
+        return redirect('/login')
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect('/login')
 
 @app.route('/')
+@login_required
 def index():
-    day = datetime.datetime.today() + datetime.timedelta(days=1)
-    assignments = Assignment.query.filter(Assignment.deadline >= datetime.datetime.today()).order_by(Assignment.deadline, Assignment.name).all()
-    assignments_today = Assignment.query.filter(Assignment.deadline == datetime.datetime.today().strftime('%Y-%m-%d')).order_by(Assignment.deadline, Assignment.name).all()
+    if datetime.datetime.now().hour >= 0 and datetime.datetime.now().hour < 18:
+        day = today
+        quiz = Quiz.query.filter(and_(Quiz.implementation_date == day, Quiz.group.in_([current_user.group, 'ALL']))).order_by(Quiz.subject, Quiz.name).all()
+    else:
+        day = today + datetime.timedelta(days=1)
+        quiz = Quiz.query.filter(and_(Quiz.implementation_date == day, Quiz.group.in_([current_user.group, 'ALL']))).order_by(Quiz.subject, Quiz.name).all()
+    assignments = Assignment.query.filter(and_(Assignment.deadline >= datetime.date.today(), Assignment.group.in_([current_user.group, 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
+    assignments_today = Assignment.query.filter(and_(Assignment.deadline == today.strftime('%Y-%m-%d'), Assignment.group.in_([current_user.group, 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
     assignments_today_list = []
     for i in assignments_today:
         assignments_today_list.append(i.name)
     print(', '.join(assignments_today_list))
-    timetable_c = Timetable.query.filter(Timetable.week_day == f'C{weekday[day.weekday()]}').first()
-    timetable_d = Timetable.query.filter(Timetable.week_day == f'D{weekday[day.weekday()]}').first()
-    return render_template('index.html', assignments_today_list=', '.join(assignments_today_list), assignments=assignments, timetable_c=timetable_c, timetable_d=timetable_d, datetime=datetime, len=len)
+    timetable_c = Timetable.query.filter(Timetable.week_day == f'C{weekday[day.weekday()]}', Timetable.group == current_user.group).first()
+    timetable_d = Timetable.query.filter(Timetable.week_day == f'D{weekday[day.weekday()]}', Timetable.group == current_user.group).first()
+    return render_template('index.html', assignments_today_list=', '.join(assignments_today_list), quiz=quiz, assignments=assignments, timetable_c=timetable_c, timetable_d=timetable_d, datetime=datetime, len=len)
 
 @app.route('/forms')
+@login_required
 def forms():
     return render_template('forms.html', datetime=datetime)
 
 # user
 @app.route('/users')
+@login_required
 def user_list():
     users = User.query.order_by(User.created_at).all()
     return render_template('user_list.html', users=users)
 
 @app.route('/users/<id>')
+@login_required
 def user_detail(id):
     user = User.query.get_or_404(id)
     messages = Message.query.filter(Message.user_id == id).order_by(desc(Message.created_at)).all()
     return render_template('user_detail.html', user=user, messages=messages)
 
 @app.get('/users/<id>/edit')
+@login_required
 def user_edit(id):
     user = User.query.get(id)
     return render_template('user_edit.html', user=user)
 
 @app.post('/users/<id>/update')
+@login_required
 def user_update(id):
     user = User.query.get(id)  # 更新するデータをDBから取得
     user.name = request.form.get('name')
@@ -69,6 +112,7 @@ def user_update(id):
     return redirect(url_for('user_list'))
 
 @app.post('/users/<id>/delete')
+@login_required
 def user_delete(id):
     user = User.query.get(id)
     db.session.delete(user)
@@ -76,10 +120,12 @@ def user_delete(id):
     return redirect(url_for('user_list'))
 
 @app.get('/add_user')
+@login_required
 def add_user():
     return render_template('add_user.html')
 
 @app.post('/add_user')
+@login_required
 def post_user():
     form_name = request.form.get('name')  # str
     form_avatar = request.form.get('avatar')  # str
@@ -102,8 +148,8 @@ def post_user():
 # assignment
 @app.route('/assignments')
 def assignment_list():
-    assignments_today = Assignment.query.filter(Assignment.deadline >= datetime.date.today()).order_by(Assignment.deadline, Assignment.name).all()
-    assignments_yesterday = Assignment.query.filter(Assignment.deadline < datetime.date.today()).order_by(Assignment.deadline, Assignment.name).all()
+    assignments_today = Assignment.query.filter(and_(Assignment.deadline >= datetime.date.today(), Assignment.group.in_([current_user.group, 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
+    assignments_yesterday = Assignment.query.filter(and_(Assignment.deadline < datetime.date.today(), Assignment.group.in_([current_user.group, 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
     assignments = Assignment.query.order_by(Assignment.deadline, Assignment.name).all()
     return render_template('assignment_list.html', assignments_today=assignments_today, assignments_yesterday=assignments_yesterday, assignments=assignments)
 
@@ -162,8 +208,8 @@ def post_assignment():
 # quiz
 @app.route('/quiz')
 def quiz_list():
-    quiz_today = Quiz.query.filter(Quiz.implementation_date >= datetime.date.today()).order_by(Quiz.implementation_date, Quiz.name).all()
-    quiz_yesterday = Quiz.query.filter(Quiz.implementation_date < datetime.date.today()).order_by(Quiz.implementation_date, Quiz.name).all()
+    quiz_today = Quiz.query.filter(and_(Quiz.implementation_date >= datetime.date.today(), Quiz.group.in_([current_user.group, 'ALL']))).order_by(Quiz.implementation_date, Quiz.name).all()
+    quiz_yesterday = Quiz.query.filter(and_(Quiz.implementation_date < datetime.date.today(), Quiz.group.in_([current_user.group, 'ALL']))).order_by(Quiz.implementation_date, Quiz.name).all()
     quiz = Quiz.query.order_by(Quiz.implementation_date, Quiz.name).all()
     return render_template('quiz_list.html', quiz_today=quiz_today, quiz_yesterday=quiz_yesterday, quiz=quiz)
 

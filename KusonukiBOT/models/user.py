@@ -1,7 +1,8 @@
 from KusonukiBOT import db
 from datetime import datetime
+from flask_login import UserMixin
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     __tablename__ = 'user'
     id = db.Column(db.String, primary_key = True)  # ユーザーID
     name = db.Column(db.String(255))  # 名前

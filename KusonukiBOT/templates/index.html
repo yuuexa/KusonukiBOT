@@ -5,12 +5,12 @@
     <div class="main-grid">
         {% if len(assignments_today_list) > 0 %}
         <div class="red-grid-item">
-            <h2>今日提出の課題(G組)</h2>
+            <h2>今日提出の課題({{ current_user.group }}組)</h2>
             <h3>{{ assignments_today_list }}</h3>
         </div>
         {% endif %}
         <div class="grid-item">
-            <h2>直近の課題(G組)</h2>
+            <h2>直近の課題({{ current_user.group }}組)</h2>
             <table class="table">
                 <thead>
                     <tr>
@@ -29,13 +29,48 @@
                     {% else %}
                     <tr>
                         <td>課題なし</td>
+                        <td>-</td>
                     </tr>
                     {% endif %}
                   </tbody>
             </table>
         </div>
         <div class="grid-item">
-            <h2>明日の予定(G組)</h2>
+            {% if datetime.datetime.now().hour >= 0 and datetime.datetime.now().hour < 18 %}
+            <h2>今日の小テスト({{ current_user.group }}組)</h2>
+            {% else %}
+            <h2>明日の小テスト({{ current_user.group }}組)</h2>
+            {% endif %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">名前</th>
+                        <th scope="col">教科</th>
+                    </tr>
+                </thead>
+                    <tbody>
+                    {% if len(quiz) > 0 %}
+                    {% for q in quiz %}
+                    <tr>
+                        <td>{{ q.name }}</td>
+                        <td>{{ q.subject }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td>小テストなし</td>
+                        <td>-</td>
+                    </tr>
+                    {% endif %}
+                  </tbody>
+            </table>
+        </div>
+        <div class="grid-item">
+            {% if datetime.datetime.now().hour >= 0 and datetime.datetime.now().hour < 18 %}
+            <h2>今日の時間割({{ current_user.group }}組)</h2>
+            {% else %}
+            <h2>明日の時間割({{ current_user.group }}組)</h2>
+            {% endif %}
             <table class="table">
                 <thead>
                     <tr>
@@ -80,7 +115,7 @@
                 <div class="Form-Item">
                     <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>クラス</p>
                     <select name="group" class="Form-Item-Input">
-                        <option value="" hidden>クラスを選択</option>
+                        <option value="{{ current_user.group }}" hidden>{{ current_user.group }}</option>
                         <option value="A">A</option>
                         <option value="B">B</option>
                         <option value="C">C</option>
@@ -144,7 +179,7 @@
                 <div class="Form-Item">
                     <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>クラス</p>
                     <select name="group" class="Form-Item-Input">
-                        <option value="" hidden>クラスを選択</option>
+                        <option value="{{ current_user.group }}" hidden>{{ current_user.group }}</option>
                         <option value="A">A</option>
                         <option value="B">B</option>
                         <option value="C">C</option>
@@ -197,7 +232,7 @@
                 <div class="Form-Item">
                     <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>クラス</p>
                     <select name="group" class="Form-Item-Input">
-                        <option value="" hidden>クラスを選択</option>
+                        <option value="{{ current_user.group }}" hidden>{{ current_user.group }}</option>
                         <option value="A">A</option>
                         <option value="B">B</option>
                         <option value="C">C</option>

@@ -1,0 +1,26 @@
+{% extends "common/layout.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="sub-grid">
+        <div class="grid-item">
+            <h2>ログイン</h2>
+            <form method="POST" class="Form">
+                <div class="Form-Item">
+                    <p class="Form-Item-Label">
+                        <span class="Form-Item-Label-Required">必須</span>ユーザー名
+                    </p>
+                    <input name="name" type="text" class="Form-Item-Input" placeholder="ユーザー名" required>
+                </div>
+                <div class="Form-Item">
+                    <p class="Form-Item-Label">
+                        <span class="Form-Item-Label-Required">必須</span>パスワード
+                    </p>
+                    <input name="password" type="password" class="Form-Item-Input" placeholder="パスワード" minlength="4" maxlength="4">
+                </div>
+                <input type="submit" class="Form-Btn" value="ログイン">
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
