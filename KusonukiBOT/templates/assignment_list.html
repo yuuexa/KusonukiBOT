@@ -13,7 +13,9 @@
                         <th scope="col">名前</th>
                         <th scope="col">教科</th>
                         <th scope="col">提出期限</th>
+                        {% if current_user.is_authenticated %}
                         <th scope="col"></th>
+                        {% endif %}
                     </tr>
                 </thead>
                     <tbody>
@@ -22,9 +24,11 @@
                         <td><a class="name" href="{{ url_for('assignment_detail', id=assignment.id) }}">{{ assignment.name }}</a></td>
                         <td>{{ assignment.subject }} - {{ assignment.group }}組</td>
                         <td>{{ assignment.deadline.strftime('%m月%d日') }}</td>
+                        {% if current_user.is_authenticated %}
                         <td>
                             <a class="edit_button" href="{{ url_for('assignment_edit', id=assignment.id) }}" role="button">編集</a>
                         </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                   </tbody>
@@ -38,7 +42,9 @@
                         <th scope="col">名前</th>
                         <th scope="col">教科</th>
                         <th scope="col">提出期限</th>
+                        {% if current_user.is_authenticated %}
                         <th scope="col"></th>
+                        {% endif %}
                     </tr>
                 </thead>
                     <tbody>
@@ -47,9 +53,11 @@
                         <td><a class="name" href="{{ url_for('assignment_detail', id=assignment.id) }}">{{ assignment.name }}</a></td>
                         <td>{{ assignment.subject }} - {{ assignment.group }}組</td>
                         <td>{{ assignment.deadline.strftime('%m月%d日') }}</td>
+                        {% if current_user.is_authenticated %}
                         <td>
                             <a class="edit_button" href="{{ url_for('assignment_edit', id=assignment.id) }}" role="button">編集</a>
                         </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                   </tbody>
@@ -63,7 +71,9 @@
                         <th scope="col">名前</th>
                         <th scope="col">教科</th>
                         <th scope="col">提出期限</th>
+                        {% if current_user.is_authenticated %}
                         <th scope="col"></th>
+                        {% endif %}
                     </tr>
                 </thead>
                     <tbody>
@@ -72,9 +82,11 @@
                         <td><a class="name" href="{{ url_for('assignment_detail', id=assignment.id) }}">{{ assignment.name }}</a></td>
                         <td>{{ assignment.subject }} - {{ assignment.group }}組</td>
                         <td>{{ assignment.deadline.strftime('%m月%d日') }}</td>
+                        {% if current_user.is_authenticated %}
                         <td>
                             <a class="edit_button" href="{{ url_for('assignment_edit', id=assignment.id) }}" role="button">編集</a>
                         </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                   </tbody>

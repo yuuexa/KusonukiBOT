@@ -1,6 +1,5 @@
 from flask import render_template, request, redirect, url_for, session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-import emoji
 from werkzeug.urls import url_parse
 from sqlalchemy import desc, or_, and_
 from KusonukiBOT import app, db, login
@@ -59,18 +58,17 @@ def logout():
 def index():
     if datetime.datetime.now().hour >= 0 and datetime.datetime.now().hour < 18:
         day = today
-        quiz = Quiz.query.filter(and_(Quiz.implementation_date == day, Quiz.group.in_([current_user.group, 'ALL']))).order_by(Quiz.subject, Quiz.name).all()
+        quiz = Quiz.query.filter(and_(Quiz.implementation_date == day, Quiz.group.in_([UserGroup(current_user), 'ALL']))).order_by(Quiz.subject, Quiz.name).all()
     else:
         day = today + datetime.timedelta(days=1)
-        quiz = Quiz.query.filter(and_(Quiz.implementation_date == day, Quiz.group.in_([current_user.group, 'ALL']))).order_by(Quiz.subject, Quiz.name).all()
-    assignments = Assignment.query.filter(and_(Assignment.deadline >= datetime.date.today(), Assignment.group.in_([current_user.group, 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
-    assignments_today = Assignment.query.filter(and_(Assignment.deadline == today.strftime('%Y-%m-%d'), Assignment.group.in_([current_user.group, 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
+        quiz = Quiz.query.filter(and_(Quiz.implementation_date == day, Quiz.group.in_([UserGroup(current_user), 'ALL']))).order_by(Quiz.subject, Quiz.name).all()
+    assignments = Assignment.query.filter(and_(Assignment.deadline >= datetime.date.today(), Assignment.group.in_([UserGroup(current_user), 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
+    assignments_today = Assignment.query.filter(and_(Assignment.deadline == today.strftime('%Y-%m-%d'), Assignment.group.in_([UserGroup(current_user), 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
     assignments_today_list = []
     for i in assignments_today:
         assignments_today_list.append(i.name)
-    print(', '.join(assignments_today_list))
-    timetable_c = Timetable.query.filter(Timetable.week_day == f'C{weekday[day.weekday()]}', Timetable.group == current_user.group).first()
-    timetable_d = Timetable.query.filter(Timetable.week_day == f'D{weekday[day.weekday()]}', Timetable.group == current_user.group).first()
+    timetable_c = Timetable.query.filter(Timetable.week_day == f'C{weekday[day.weekday()]}', Timetable.group == UserGroup(current_user)).first()
+    timetable_d = Timetable.query.filter(Timetable.week_day == f'D{weekday[day.weekday()]}', Timetable.group == UserGroup(current_user)).first()
     return render_template('index.html', assignments_today_list=', '.join(assignments_today_list), quiz=quiz, assignments=assignments, timetable_c=timetable_c, timetable_d=timetable_d, datetime=datetime, len=len)
 
 @app.route('/forms')
@@ -151,8 +149,8 @@ def post_user():
 # assignment
 @app.route('/assignments')
 def assignment_list():
-    assignments_today = Assignment.query.filter(and_(Assignment.deadline >= datetime.date.today(), Assignment.group.in_([current_user.group, 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
-    assignments_yesterday = Assignment.query.filter(and_(Assignment.deadline < datetime.date.today(), Assignment.group.in_([current_user.group, 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
+    assignments_today = Assignment.query.filter(and_(Assignment.deadline >= datetime.date.today(), Assignment.group.in_([UserGroup(current_user), 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
+    assignments_yesterday = Assignment.query.filter(and_(Assignment.deadline < datetime.date.today(), Assignment.group.in_([UserGroup(current_user), 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
     assignments = Assignment.query.order_by(Assignment.deadline, Assignment.name).all()
     return render_template('assignment_list.html', assignments_today=assignments_today, assignments_yesterday=assignments_yesterday, assignments=assignments)
 
@@ -213,8 +211,8 @@ def post_assignment():
 # quiz
 @app.route('/quiz')
 def quiz_list():
-    quiz_today = Quiz.query.filter(and_(Quiz.implementation_date >= datetime.date.today(), Quiz.group.in_([current_user.group, 'ALL']))).order_by(Quiz.implementation_date, Quiz.name).all()
-    quiz_yesterday = Quiz.query.filter(and_(Quiz.implementation_date < datetime.date.today(), Quiz.group.in_([current_user.group, 'ALL']))).order_by(Quiz.implementation_date, Quiz.name).all()
+    quiz_today = Quiz.query.filter(and_(Quiz.implementation_date >= datetime.date.today(), Quiz.group.in_([UserGroup(current_user), 'ALL']))).order_by(Quiz.implementation_date, Quiz.name).all()
+    quiz_yesterday = Quiz.query.filter(and_(Quiz.implementation_date < datetime.date.today(), Quiz.group.in_([UserGroup(current_user), 'ALL']))).order_by(Quiz.implementation_date, Quiz.name).all()
     quiz = Quiz.query.order_by(Quiz.implementation_date, Quiz.name).all()
     return render_template('quiz_list.html', quiz_today=quiz_today, quiz_yesterday=quiz_yesterday, quiz=quiz)
 
@@ -379,17 +377,23 @@ def post_image():
     return redirect(url_for('user_list'))
 
 def Logging(user, content):
-    if not user:
-        log = Log(
-            user_id = 'GUEST',
-            user_name = 'GUEST',
-            content = content,
-        )
-    else:
+    if user.is_authenticated:
         log = Log(
             user_id = user.id,
             user_name = user.name,
             content = content,
         )
+    else:
+        log = Log(
+            user_id = 'GUEST',
+            user_name = 'GUEST',
+            content = content,
+        )
     db.session.add(log)
     db.session.commit()
+
+def UserGroup(user):
+    if user.is_authenticated:
+        return user.group
+    else:
+        return 'G'
