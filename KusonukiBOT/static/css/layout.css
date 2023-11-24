@@ -37,10 +37,13 @@ header {
 }
 .dropbtn {
     height: 80px;
-    font-size: 20px;
     background-color: #ffffff;
     border: none;
     cursor: pointer;
+}
+.dropbtn i {
+    font-size: 30px;
+    padding: 5px 15px;
 }
 .dropbtn img {
     height: 60px;

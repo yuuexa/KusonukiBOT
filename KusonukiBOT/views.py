@@ -10,6 +10,7 @@ from KusonukiBOT.models.timetable import Timetable
 from KusonukiBOT.models.examination import Examination
 from KusonukiBOT.models.quiz import Quiz
 from KusonukiBOT.models.message import Message
+from KusonukiBOT.models.log import Log
 import datetime
 import platform
 
@@ -40,17 +41,16 @@ def post_login():
     elif user.id[0:4] == password:
         login_user(user)
         next_page = request.args.get('next')
-      # 遷移先が存在しない場合もしくはそのurlのnetloc(ファーストレベルのドメイン)がある場合
         if not next_page or url_parse(next_page).netloc != '':
-            # トップページにリダイレクト
             next_page = url_for('index')
-        # アクセスしようとしていたページにリダイレクトバック
+        Logging(current_user, 'LOGIN')
         return redirect(next_page)
     else:
         return redirect('/login')
 
 @app.route('/logout')
 def logout():
+    Logging(current_user, 'LOGOUT')
     logout_user()
     return redirect('/login')
 
@@ -110,6 +110,7 @@ def user_update(id):
 
     db.session.merge(user)
     db.session.commit()
+    Logging(current_user, f'USER_UPDATE {user.id}')
     return redirect(url_for('user_list'))
 
 @app.post('/users/<id>/delete')
@@ -118,6 +119,7 @@ def user_delete(id):
     user = User.query.get(id)
     db.session.delete(user)
     db.session.commit()
+    Logging(current_user, f'USER_DELETE {user.id}')
     return redirect(url_for('user_list'))
 
 @app.get('/add_user')
@@ -178,6 +180,7 @@ def assignment_update(id):
 
     db.session.merge(assignment)
     db.session.commit()
+    Logging(current_user, f'ASSIGNMENT_UPDATE {assignment.id}')
     return redirect(url_for('assignment_list'))
 
 @app.get('/add_assignment')
@@ -204,6 +207,7 @@ def post_assignment():
     )
     db.session.add(assignment)
     db.session.commit()
+    Logging(current_user, f'ASSIGNMENT_ADD {assignment.id}')
     return redirect(url_for('assignment_list'))
 
 # quiz
@@ -238,6 +242,7 @@ def quiz_update(id):
 
     db.session.merge(quiz)
     db.session.commit()
+    Logging(current_user, f'QUIZ_UPDATE {quiz.id}')
     return redirect(url_for('quiz_list'))
 
 @app.get('/add_quiz')
@@ -262,6 +267,7 @@ def post_quiz():
     )
     db.session.add(quiz)
     db.session.commit()
+    Logging(current_user, f'QUIZ_ADD {quiz.id}')
     return redirect(url_for('quiz_list'))
 
 # examination
@@ -287,6 +293,7 @@ def examination_update(id):
 
     db.session.merge(examination)
     db.session.commit()
+    Logging(current_user, f'EXAMINATION_UPDATE {examination.id}')
     return redirect(url_for('examination_list'))
 
 @app.get('/add_examination')
@@ -310,6 +317,7 @@ def post_examination():
     )
     db.session.add(examination)
     db.session.commit()
+    Logging(current_user, f'EXAMINATION_ADD {examination.id}')
     return redirect(url_for('examination_list'))
 
 # timetable
@@ -341,6 +349,7 @@ def post_timetable():
     )
     db.session.add(timetable)
     db.session.commit()
+    Logging(current_user, f'TIMETABLE_ADD {timetable.id}')
     return redirect(url_for('add_timetable'))
 
 # image
@@ -350,20 +359,37 @@ def add_image():
 
 @app.post('/add_image')
 def post_image():
-    form_name = request.form.get('name')  # str
-    form_avatar = request.form.get('avatar')  # str
-    form_group = request.form.get('group', default='G')  # str
-    form_avatar = request.form.get('avatar')  # str
-    form_year = request.form.get('year', default=1, type=int) # int
-    form_available = request.form.get('available', default=True, type=bool) #bool
+    # form_name = request.form.get('name')  # str
+    # form_avatar = request.form.get('avatar')  # str
+    # form_group = request.form.get('group', default='G')  # str
+    # form_avatar = request.form.get('avatar')  # str
+    # form_year = request.form.get('year', default=1, type=int) # int
+    # form_available = request.form.get('available', default=True, type=bool) #bool
 
-    user = User(
-        name=form_name,
-        avatar=form_avatar,
-        year=form_year,
-        group=form_group,
-        available=form_available,
-    )
-    db.session.add(user)
-    db.session.commit()
+    # user = Image(
+    #     name=form_name,
+    #     avatar=form_avatar,
+    #     year=form_year,
+    #     group=form_group,
+    #     available=form_available,
+    # )
+    # db.session.add(user)
+    # db.session.commit()
+    # Logging(current_user, f'IMAGE_ADD {image.id}')
     return redirect(url_for('user_list'))
+
+def Logging(user, content):
+    if not user:
+        log = Log(
+            user_id = 'GUEST',
+            user_name = 'GUEST',
+            content = content,
+        )
+    else:
+        log = Log(
+            user_id = user.id,
+            user_name = user.name,
+            content = content,
+        )
+    db.session.add(log)
+    db.session.commit()
