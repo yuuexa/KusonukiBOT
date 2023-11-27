@@ -11,6 +11,10 @@
                 <th scope="col">名前</th>
                 <th scope="col">クラス</th>
                 <th scope="col">権限</th>
+                {% if current_user.is_authenticated %}
+                <th scope="col">使用許可</th>
+                <th scope="col"></th>
+                {% endif %}
             </tr>
         </thead>
             <tbody>
@@ -24,11 +28,16 @@
                 </td>
                 <td>{{ user.year }}{{ user.group }}</td>
                 <td>{{ user.role }}</td>
-                <!-- {% if user.available == 1 %}
+                {% if current_user.role == 'ADMINISTRATOR' %}
+                {% if user.available == 1 %}
                     <td>許可</td>
                 {% else %}
                     <td>禁止</td>
-                {% endif %} -->
+                {% endif %}
+                <td>
+                    <a class="edit_button" href="{{ url_for('user_edit', id=user.id) }}" role="button">編集</a>
+                </td>
+                {% endif %}
             </tr>
             {% endfor %}
           </tbody>

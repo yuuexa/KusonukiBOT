@@ -43,7 +43,9 @@
                         <th scope="col">名前</th>
                         <th scope="col">教科</th>
                         <th scope="col">実施日</th>
+                        {% if current_user.is_authenticated %}
                         <th scope="col"></th>
+                        {% endif %}
                     </tr>
                 </thead>
                     <tbody>
@@ -52,9 +54,11 @@
                         <td><a class="name" href="{{ url_for('quiz_detail', id=test.id) }}">{{ test.name }}</a></td>
                         <td>{{ test.subject }} - {{ test.group }}組</td>
                         <td>{{ test.implementation_date.strftime('%m月%d日') }}</td>
+                        {% if current_user.is_authenticated %}
                         <td>
                             <a class="edit_button" href="{{ url_for('quiz_edit', id=test.id) }}" role="button">編集</a>
                         </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                   </tbody>

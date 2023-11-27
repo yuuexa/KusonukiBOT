@@ -58,12 +58,12 @@ def logout():
 def index():
     if datetime.datetime.now().hour >= 0 and datetime.datetime.now().hour < 18:
         day = today
-        quiz = Quiz.query.filter(and_(Quiz.implementation_date == day, Quiz.group.in_([UserGroup(current_user), 'ALL']))).order_by(Quiz.subject, Quiz.name).all()
     else:
         day = today + datetime.timedelta(days=1)
-        quiz = Quiz.query.filter(and_(Quiz.implementation_date == day, Quiz.group.in_([UserGroup(current_user), 'ALL']))).order_by(Quiz.subject, Quiz.name).all()
-    assignments = Assignment.query.filter(and_(Assignment.deadline >= datetime.date.today(), Assignment.group.in_([UserGroup(current_user), 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
-    assignments_today = Assignment.query.filter(and_(Assignment.deadline == today.strftime('%Y-%m-%d'), Assignment.group.in_([UserGroup(current_user), 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
+
+    quiz = Quiz.query.filter(and_(Quiz.implementation_date == day, Quiz.group.in_([UserGroup(current_user), 'ALL']))).order_by(Quiz.subject, Quiz.name).all()
+    assignments = Assignment.query.filter(and_(Assignment.deadline >= today, Assignment.group.in_([UserGroup(current_user), 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
+    assignments_today = Assignment.query.filter(and_(Assignment.deadline == today, Assignment.group.in_([UserGroup(current_user), 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
     assignments_today_list = []
     for i in assignments_today:
         assignments_today_list.append(i.name)
@@ -80,7 +80,7 @@ def forms():
 @app.route('/users')
 @login_required
 def user_list():
-    users = User.query.order_by(User.created_at).all()
+    users = User.query.order_by(User.name).all()
     return render_template('user_list.html', users=users)
 
 @app.route('/users/<id>')
@@ -149,10 +149,10 @@ def post_user():
 # assignment
 @app.route('/assignments')
 def assignment_list():
-    assignments_today = Assignment.query.filter(and_(Assignment.deadline >= datetime.date.today(), Assignment.group.in_([UserGroup(current_user), 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
-    assignments_yesterday = Assignment.query.filter(and_(Assignment.deadline < datetime.date.today(), Assignment.group.in_([UserGroup(current_user), 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
+    assignments_today = Assignment.query.filter(and_(Assignment.deadline >= today, Assignment.group.in_([UserGroup(current_user), 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
+    assignments_yesterday = Assignment.query.filter(and_(Assignment.deadline < today, Assignment.group.in_([UserGroup(current_user), 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
     assignments = Assignment.query.order_by(Assignment.deadline, Assignment.name).all()
-    return render_template('assignment_list.html', assignments_today=assignments_today, assignments_yesterday=assignments_yesterday, assignments=assignments)
+    return render_template('assignment_list.html', assignments_today=assignments_today, assignments_yesterday=assignments_yesterday, assignments=assignments, datetime=datetime)
 
 @app.route('/assignment/<id>')
 def assignment_detail(id):
@@ -179,6 +179,15 @@ def assignment_update(id):
     db.session.merge(assignment)
     db.session.commit()
     Logging(current_user, f'ASSIGNMENT_UPDATE {assignment.id}')
+    return redirect(url_for('assignment_list'))
+
+@app.get('/assignment/<id>/delete')
+@login_required
+def assignment_delete(id):
+    assignment = Assignment.query.get(id)
+    db.session.delete(assignment)
+    db.session.commit()
+    Logging(current_user, f'ASSIGNMENT_DELETE {assignment.id}')
     return redirect(url_for('assignment_list'))
 
 @app.get('/add_assignment')
@@ -211,10 +220,10 @@ def post_assignment():
 # quiz
 @app.route('/quiz')
 def quiz_list():
-    quiz_today = Quiz.query.filter(and_(Quiz.implementation_date >= datetime.date.today(), Quiz.group.in_([UserGroup(current_user), 'ALL']))).order_by(Quiz.implementation_date, Quiz.name).all()
-    quiz_yesterday = Quiz.query.filter(and_(Quiz.implementation_date < datetime.date.today(), Quiz.group.in_([UserGroup(current_user), 'ALL']))).order_by(Quiz.implementation_date, Quiz.name).all()
+    quiz_today = Quiz.query.filter(and_(Quiz.implementation_date >= today, Quiz.group.in_([UserGroup(current_user), 'ALL']))).order_by(Quiz.implementation_date, Quiz.name).all()
+    quiz_yesterday = Quiz.query.filter(and_(Quiz.implementation_date < today, Quiz.group.in_([UserGroup(current_user), 'ALL']))).order_by(Quiz.implementation_date, Quiz.name).all()
     quiz = Quiz.query.order_by(Quiz.implementation_date, Quiz.name).all()
-    return render_template('quiz_list.html', quiz_today=quiz_today, quiz_yesterday=quiz_yesterday, quiz=quiz)
+    return render_template('quiz_list.html', quiz_today=quiz_today, quiz_yesterday=quiz_yesterday, quiz=quiz, datetime=datetime)
 
 @app.route('/quiz/<id>')
 def quiz_detail(id):
@@ -241,6 +250,15 @@ def quiz_update(id):
     db.session.merge(quiz)
     db.session.commit()
     Logging(current_user, f'QUIZ_UPDATE {quiz.id}')
+    return redirect(url_for('quiz_list'))
+
+@app.get('/quiz/<id>/delete')
+@login_required
+def quiz_delete(id):
+    quiz = Quiz.query.get(id)
+    db.session.delete(quiz)
+    db.session.commit()
+    Logging(current_user, f'QUIZ_DELETE {quiz.id}')
     return redirect(url_for('quiz_list'))
 
 @app.get('/add_quiz')

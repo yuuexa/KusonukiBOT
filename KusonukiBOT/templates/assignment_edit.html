@@ -64,7 +64,14 @@
                     <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>期限</p>
                     <input name="deadline" type="date" class="Form-Item-Input" min="{{ datetime.datetime.now().strftime('%Y-%m-%d') }}" value="{{ assignment.deadline.strftime('%Y-%m-%d') }}" required>
                 </div>
+                {% if current_user.role == 'ADMINISTRATOR' %}
+                <div class="Form-Buttons">
+                    <input type="submit" class="Form-Btn" value="課題編集">
+                    <a href="{{ url_for('assignment_delete', id=assignment.id) }}" class="Form-Btn red" role="button">課題削除</a>
+                </div>
+                {% else %}
                 <input type="submit" class="Form-Btn" value="課題編集">
+                {% endif %}
             </form>
         </div>
         <div class="grid-item">
@@ -76,7 +83,9 @@
                         <th scope="col">教科</th>
                         <th scope="col">提出期限</th>
                         <th scope="col">提出方法</th>
+                        {% if current_user.is_authenticated %}
                         <th scope="col"></th>
+                        {% endif %}
                     </tr>
                 </thead>
                     <tbody>
@@ -86,9 +95,11 @@
                         <td>{{ assignment.subject }}</td>
                         <td>{{ assignment.deadline.strftime('%m月%d日') }}</td>
                         <td>{{ assignment.method }}</td>
+                        {% if current_user.is_authenticated %}
                         <td>
                             <a class="edit_button" href="{{ url_for('assignment_edit', id=assignment.id) }}" role="button">編集</a>
                         </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                   </tbody>

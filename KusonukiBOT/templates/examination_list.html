@@ -11,7 +11,9 @@
                 <th scope="col">教科</th>
                 <th scope="col">媒体</th>
                 <th scope="col">範囲</th>
+                {% if current_user.is_authenticated %}
                 <th scope="col"></th>
+                {% endif %}
             </tr>
         </thead>
             <tbody>
@@ -21,9 +23,11 @@
                 <td>{{ examination.subject }}</td>
                 <td>{{ examination.medium }}</td>
                 <td>{{ examination.name }}</td>
+                {% if current_user.is_authenticated %}
                 <td>
                     <a class="edit_button" href="{{ url_for('examination_edit', id=examination.id) }}" role="button">編集</a>
                 </td>
+                {% endif %}
             </tr>
             {% endfor %}
           </tbody>

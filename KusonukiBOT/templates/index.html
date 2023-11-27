@@ -23,7 +23,7 @@
                     {% for assignment in assignments %}
                     <tr>
                         <td><a class="name" href="{{ url_for('assignment_detail', id=assignment.id) }}">{{ assignment.name }}</a></td>
-                        <td>{{ assignment.deadline.strftime('%m月%d日') }}</td>
+                        <td>{{ assignment.deadline.strftime('%m月%d日') }}({{ (assignment.deadline - datetime.datetime.today().date()).days }}日後)</td>
                     </tr>
                     {% endfor %}
                     {% else %}

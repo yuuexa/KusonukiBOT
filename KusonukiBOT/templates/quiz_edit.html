@@ -53,7 +53,14 @@
                     <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>実施日</p>
                     <input name="implementation_date" type="date" class="Form-Item-Input" min="{{ datetime.datetime.now().strftime('%Y-%m-%d') }}" value="{{ quiz.implementation_date.strftime('%Y-%m-%d') }}" required>
                 </div>
+                {% if current_user.role == 'ADMINISTRATOR' %}
+                <div class="Form-Buttons">
+                    <input type="submit" class="Form-Btn" value="小テスト編集">
+                    <a href="{{ url_for('quiz_delete', id=quiz.id) }}" class="Form-Btn red" role="button">小テスト削除</a>
+                </div>
+                {% else %}
                 <input type="submit" class="Form-Btn" value="小テスト編集">
+                {% endif %}
             </form>
         </div>
         <div class="grid-item">
@@ -64,7 +71,9 @@
                         <th scope="col">名前</th>
                         <th scope="col">教科</th>
                         <th scope="col">実施日</th>
+                        {% if current_user.is_authenticated %}
                         <th scope="col"></th>
+                        {% endif %}
                     </tr>
                 </thead>
                     <tbody>
@@ -73,9 +82,11 @@
                         <td>{{ test.name }}</td>
                         <td>{{ test.subject }}</td>
                         <td>{{ test.implementation_date.strftime('%m月%d日') }}</td>
+                        {% if current_user.is_authenticated %}
                         <td>
                             <a class="edit_button" href="{{ url_for('quiz_edit', id=test.id) }}" role="button">編集</a>
                         </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                   </tbody>
