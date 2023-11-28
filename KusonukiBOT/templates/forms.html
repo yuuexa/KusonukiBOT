@@ -10,7 +10,11 @@
                 <div class="Form-Item">
                     <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>クラス</p>
                     <select name="group" class="Form-Item-Input">
+                        {% if current_user.is_authenticated %}
+                        <option value="{{ current_user.group }}" hidden>{{ current_user.group }}</option>
+                        {% else %}
                         <option value="" hidden>クラスを選択</option>
+                        {% endif %}
                         <option value="A">A</option>
                         <option value="B">B</option>
                         <option value="C">C</option>
@@ -73,7 +77,11 @@
                 <div class="Form-Item">
                     <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>クラス</p>
                     <select name="group" class="Form-Item-Input">
+                        {% if current_user.is_authenticated %}
+                        <option value="{{ current_user.group }}" hidden>{{ current_user.group }}</option>
+                        {% else %}
                         <option value="" hidden>クラスを選択</option>
+                        {% endif %}
                         <option value="A">A</option>
                         <option value="B">B</option>
                         <option value="C">C</option>
@@ -175,7 +183,11 @@
                 <div class="Form-Item">
                     <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>クラス</p>
                     <select name="group" class="Form-Item-Input">
+                        {% if current_user.is_authenticated %}
+                        <option value="{{ current_user.group }}" hidden>{{ current_user.group }}</option>
+                        {% else %}
                         <option value="" hidden>クラスを選択</option>
+                        {% endif %}
                         <option value="A">A</option>
                         <option value="B">B</option>
                         <option value="C">C</option>

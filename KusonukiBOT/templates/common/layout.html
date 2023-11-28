@@ -25,7 +25,7 @@
                     {% else %}
                     <a href="{{ url_for('user_detail', id=current_user.id) }}"><i class="fa-regular fa-user"></i>{{ current_user.year }}{{ current_user.group }} {{ current_user.name }}</a>
                     <a href="/logout"><i class="fa-solid fa-arrow-right-from-bracket"></i>ログアウト</a>
-                    <label for="popup"><a><i class="fa-solid fa-gears"></i>設定</a></label>
+                    <label for="setting"><a><i class="fa-solid fa-gears"></i>設定</a></label>
                     {% endif %}
                 </div>
             </div>
@@ -62,14 +62,22 @@
                         <li>
                             <a href="{{ url_for('examination_list') }}"><i class="fa-solid fa-table-list"></i>試験範囲一覧</a>
                         </li>
+                        <li>
+                            <a href="{{ url_for('change_list') }}"><i class="fa-solid fa-table-list"></i>授業変更一覧</a>
+                        </li>
+                        {% if current_user.role == 'ADMINISTRATOR' %}
+                        <li>
+                            <a href="{{ url_for('log_list') }}"><i class="fa-solid fa-table-list"></i>ログ一覧</a>
+                        </li>
+                        {% endif %}
                     </ul>
                 </div>
                 <!--ここまでメニュー-->
             </div>
         </header>
-        <input type="checkbox" id="popup">
-        <div class="popup-overlay">
-            <div class="popup-window">
+        <input type="checkbox" id="setting">
+        <div class="setting-overlay">
+            <div class="setting-window">
                 <h2>ユーザー設定</h2>
                 <form action="{{ url_for('user_update', id=current_user.id) }}" method="POST" class="Form">
                     <div class="Form-Item">
@@ -110,7 +118,7 @@
                     </div>
                     <input type="submit" class="Form-Btn" value="設定完了">
                 </form>
-                <label class="popup-close" for="popup">
+                <label class="setting-close" for="setting">
                     <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg">
                         <line x1="0" y1="0" x2="18" y2="18" stroke="white" stroke-width="3"></line>
                         <line x1="0" y1="18" x2="18" y2="0" stroke="white" stroke-width="3"></line>

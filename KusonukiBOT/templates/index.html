@@ -3,10 +3,14 @@
 <div class="container">
     <h1>ホーム</h1>
     <div class="main-grid">
-        {% if len(assignments_today_list) > 0 %}
+        {% if assignments_today %}
         <div class="red-grid-item">
             <h2>今日提出の課題({{ current_user.group }}組)</h2>
-            <h3>{{ assignments_today_list }}</h3>
+            <ul>
+                {% for assignment in assignments_today %}
+                <li>{{ assignment.name }}({{ assignment.subject }})</li>
+                {% endfor %}
+            </ul>
         </div>
         {% endif %}
         <div class="grid-item">
@@ -80,28 +84,53 @@
                     </tr>
                     <tr>
                         <th scope="col">1.</th>
+                        {% if Change.query.filter(and_(Change.date == day, Change.period == 1)).first() %}
+                        <td class="red"><span class="tooltip">{{ Change.query.filter(and_(Change.date == day, Change.period == 1)).first().subject }}<span class="description_top">変更前: {{ timetable_c.first }}</span></span></td>
+                        <td class="red"><span class="tooltip">{{ Change.query.filter(and_(Change.date == day, Change.period == 1)).first().subject }}<span class="description_top">変更前: {{ timetable_c.first }}</span></span></td>
+                        {% else %}
                         <td>{{ timetable_c.first }}</td>
                         <td>{{ timetable_d.first }}</td>
+                        {% endif %}
                     </tr>
                     <tr>
                         <th scope="col">2.</th>
+                        {% if Change.query.filter(and_(Change.date == day, Change.period == 2)).first() %}
+                        <td class="red"><span class="tooltip">{{ Change.query.filter(and_(Change.date == day, Change.period == 2)).first().subject }}<span class="description_top">変更前: {{ timetable_c.second }}</span></span></td>
+                        <td class="red"><span class="tooltip">{{ Change.query.filter(and_(Change.date == day, Change.period == 2)).first().subject }}<span class="description_top">変更前: {{ timetable_d.second }}</span></span></td>
+                        {% else %}
                         <td>{{ timetable_c.second }}</td>
                         <td>{{ timetable_d.second }}</td>
+                        {% endif %}
                     </tr>
                     <tr>
                         <th scope="col">3.</th>
+                        {% if Change.query.filter(and_(Change.date == day, Change.period == 3)).first() %}
+                        <td class="red"><span class="tooltip">{{ Change.query.filter(and_(Change.date == day, Change.period == 3)).first().subject }}<span class="description_top">変更前: {{ timetable_c.third }}</span></span></td>
+                        <td class="red"><span class="tooltip">{{ Change.query.filter(and_(Change.date == day, Change.period == 3)).first().subject }}<span class="description_top">変更前: {{ timetable_d.third }}</span></span></td>
+                        {% else %}
                         <td>{{ timetable_c.third }}</td>
                         <td>{{ timetable_d.third }}</td>
+                        {% endif %}
                     </tr>
                     <tr>
                         <th scope="col">4.</th>
-                        <td>{{ timetable_c.forth }}</td>
-                        <td>{{ timetable_d.forth }}</td>
+                        {% if Change.query.filter(and_(Change.date == day, Change.period == 4)).first() %}
+                        <td class="red"><span class="tooltip">{{ Change.query.filter(and_(Change.date == day, Change.period == 4)).first().subject }}<span class="description_top">変更前: {{ timetable_c.fourth }}</span></span></td>
+                        <td class="red"><span class="tooltip">{{ Change.query.filter(and_(Change.date == day, Change.period == 4)).first().subject }}<span class="description_top">変更前: {{ timetable_d.fourth }}</span></span></td>
+                        {% else %}
+                        <td>{{ timetable_c.fourth }}</td>
+                        <td>{{ timetable_d.fourth }}</td>
+                        {% endif %}
                     </tr>
                     <tr>
                         <th scope="col">5.</th>
+                        {% if Change.query.filter(and_(Change.date == day, Change.period == 5)).first() %}
+                        <td class="red"><span class="tooltip">{{ Change.query.filter(and_(Change.date == day, Change.period == 5)).first().subject }}<span class="description_top">変更前: {{ timetable_c.fifth }}</span></span></td>
+                        <td class="red"><span class="tooltip">{{ Change.query.filter(and_(Change.date == day, Change.period == 5)).first().subject }}<span class="description_top">変更前: {{ timetable_d.fifth }}</span></span></td>
+                        {% else %}
                         <td>{{ timetable_c.fifth }}</td>
                         <td>{{ timetable_d.fifth }}</td>
+                        {% endif %}
                     </tr>
                 </thead>
             </table>
@@ -114,6 +143,12 @@
             <form action="/add_assignment" method="POST" class="Form">
                 <div class="Form-Item">
                     <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>クラス</p>
+                    <select name="year" class="Form-Item-Input">
+                        <option value="{{ current_user.year }}" hidden>{{ current_user.year }}</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
                     <select name="group" class="Form-Item-Input">
                         <option value="{{ current_user.group }}" hidden>{{ current_user.group }}</option>
                         <option value="A">A</option>
@@ -178,6 +213,12 @@
             <form action="/add_quiz" method="POST" class="Form">
                 <div class="Form-Item">
                     <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>クラス</p>
+                    <select name="year" class="Form-Item-Input">
+                        <option value="{{ current_user.year }}" hidden>{{ current_user.year }}</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
                     <select name="group" class="Form-Item-Input">
                         <option value="{{ current_user.group }}" hidden>{{ current_user.group }}</option>
                         <option value="A">A</option>
@@ -231,6 +272,12 @@
             <form action="/add_timetable" method="POST" class="Form">
                 <div class="Form-Item">
                     <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>クラス</p>
+                    <select name="year" class="Form-Item-Input">
+                        <option value="{{ current_user.year }}" hidden>{{ current_user.year }}</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
                     <select name="group" class="Form-Item-Input">
                         <option value="{{ current_user.group }}" hidden>{{ current_user.group }}</option>
                         <option value="A">A</option>
@@ -383,6 +430,70 @@
                     </select>
                 </div>
                 <input type="submit" class="Form-Btn" value="時間割追加">
+            </form>
+        </div>
+        <div class="grid-item">
+            <h2>授業変更</h2>
+            <form action="/add_change" method="POST" class="Form">
+                <div class="Form-Item">
+                    <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>クラス</p>
+                    <select name="year" class="Form-Item-Input" required>
+                        <option value="{{ current_user.year }}" hidden>{{ current_user.year }}</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
+                    <select name="group" class="Form-Item-Input" required>
+                        <option value="{{ current_user.group }}" hidden>{{ current_user.group }}</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="G">G</option>
+                        <option value="H">H</option>
+                        <option value="I">I</option>
+                        <option value="ALL">ALL</option>
+                    </select>
+                </div>
+                <div class="Form-Item">
+                    <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>日付</p>
+                    <input name="date" type="date" class="Form-Item-Input" value="{{ datetime.datetime.now().strftime('%Y-%m-%d')}}">
+                </div>
+                <div class="Form-Item">
+                    <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>時間</p>
+                    <select name="period" class="Form-Item-Input" required>
+                        <option value="" hidden>時間を選択</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+                <div class="Form-Item">
+                    <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>教科</p>
+                    <select name="subject" class="Form-Item-Input" required>
+                        <option value="" hidden>変更後の教科を選択</option>
+                        <option value="ヴェリタス">ヴェリタス</option>
+                        <option value="言語文化">言語文化</option>
+                        <option value="現代の国語">現代の国語</option>
+                        <option value="英語コミュニケーション">英語コミュニケーション</option>
+                        <option value="論理表現">論理表現</option>
+                        <option value="数学">数学</option>
+                        <option value="S.E.P(物理)">S.E.P(物理)</option>
+                        <option value="S.E.B(生物)">S.E.B(生物)</option>
+                        <option value="S.E.C(化学)">S.E.C(化学)</option>
+                        <option value="音楽">音楽</option>
+                        <option value="美術">美術</option>
+                        <option value="保健">保健</option>
+                        <option value="体育">体育</option>
+                        <option value="地理総合">地理総合</option>
+                        <option value="公共">公共</option>
+                    </select>
+                </div>
+                <input type="submit" class="Form-Btn" value="課題編集">
             </form>
         </div>
     </div>

@@ -1,0 +1,36 @@
+{% extends "common/layout.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>ログ一覧</h1>
+    <div class="table-header">
+        <input type="search" id="searchInput" placeholder="&#xf002 キーワードで検索">
+    </div>
+    <div class="sub-grid">
+        <div class="grid-item">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">ユーザー</th>
+                        <th scope="col">内容</th>
+                        <th scope="col">日時</th>
+                    </tr>
+                </thead>
+                    <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        {% if not log.user_id == 'GUEST' %}
+                        <td><a class="name" href="{{ url_for('user_detail', id=log.user_id) }}">{{ log.user_name }}</a></td>
+                        {% else %}
+                        <td>ゲスト</td>
+                        {% endif %}
+                        <td>{{ log.content }}</td>
+                        <td>{{ log.created_at.strftime('%Y年%m月%d日 %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

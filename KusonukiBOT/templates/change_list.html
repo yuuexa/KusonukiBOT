@@ -1,0 +1,34 @@
+{% extends "common/layout.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>授業変更一覧</h1>
+    <div class="table-header">
+        <input type="search" id="searchInput" placeholder="&#xf002 キーワードで検索">
+    </div>
+    <div class="sub-grid">
+        <div class="grid-item">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">クラス</th>
+                        <th scope="col">日付</th>
+                        <th scope="col">時間</th>
+                        <th scope="col">授業</th>
+                    </tr>
+                </thead>
+                    <tbody>
+                    {% for change in changes %}
+                    <tr>
+                        <td>{{ change.year }}{{ change.group }}</td>
+                        <td>{{ change.date.strftime('%Y年%m月%d日') }}</td>
+                        <td>{{ change.period }}校時目</td>
+                        <td>{{ change.subject }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -11,7 +11,7 @@
                 <th scope="col">名前</th>
                 <th scope="col">クラス</th>
                 <th scope="col">権限</th>
-                {% if current_user.is_authenticated %}
+                {% if current_user.role == 'ADMINISTRATOR' %}
                 <th scope="col">使用許可</th>
                 <th scope="col"></th>
                 {% endif %}

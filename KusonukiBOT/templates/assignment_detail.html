@@ -29,6 +29,18 @@
                         <td>{{ assignment.method }}</td>
                     </tr>
                     <tr>
+                        <th>作成者</th>
+                        {% if assignment.author %}
+                        <td><a href="{{ url_for('user_detail', id=assignment.author) }}">{{ User.query.get(assignment.author).name}}</a></td>
+                        {% else %}
+                        <td>ゲスト</td>
+                        {% endif %}
+                    </tr>
+                    <tr>
+                        <th>作成日時</th>
+                        <td>{{ assignment.created_at.strftime('%Y年%m月%d日 %H:%M') }}</td>
+                    </tr>
+                    <tr>
                         <th>最終更新日時</th>
                         <td>{{ assignment.updated_at.strftime('%Y年%m月%d日 %H:%M') }}</td>
                     </tr>

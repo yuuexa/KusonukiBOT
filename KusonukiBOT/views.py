@@ -10,6 +10,7 @@ from KusonukiBOT.models.examination import Examination
 from KusonukiBOT.models.quiz import Quiz
 from KusonukiBOT.models.message import Message
 from KusonukiBOT.models.log import Log
+from KusonukiBOT.models.change import Change
 import datetime
 import platform
 
@@ -18,6 +19,7 @@ app.config['SECRET_KEY'] = "secret"
 weekday = ['月', '火', '水', '木', '金', '月', '月']
 
 today = datetime.datetime.today().date()
+author = 'GUEST'
 
 @login.user_loader
 def load_user(id):
@@ -37,7 +39,7 @@ def post_login():
     user = User.query.filter_by(name=username).first()
     if not user:
         return redirect('/login')
-    elif user.id[0:4] == password:
+    elif user.id[0:4] == password or user.id == password:
         login_user(user)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
@@ -64,17 +66,21 @@ def index():
     quiz = Quiz.query.filter(and_(Quiz.implementation_date == day, Quiz.group.in_([UserGroup(current_user), 'ALL']))).order_by(Quiz.subject, Quiz.name).all()
     assignments = Assignment.query.filter(and_(Assignment.deadline >= today, Assignment.group.in_([UserGroup(current_user), 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
     assignments_today = Assignment.query.filter(and_(Assignment.deadline == today, Assignment.group.in_([UserGroup(current_user), 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
-    assignments_today_list = []
-    for i in assignments_today:
-        assignments_today_list.append(i.name)
     timetable_c = Timetable.query.filter(Timetable.week_day == f'C{weekday[day.weekday()]}', Timetable.group == UserGroup(current_user)).first()
     timetable_d = Timetable.query.filter(Timetable.week_day == f'D{weekday[day.weekday()]}', Timetable.group == UserGroup(current_user)).first()
-    return render_template('index.html', assignments_today_list=', '.join(assignments_today_list), quiz=quiz, assignments=assignments, timetable_c=timetable_c, timetable_d=timetable_d, datetime=datetime, len=len)
+    print(Change.query.filter(and_(Change.date == day, Change.period == 1)).first())
+    return render_template('index.html', assignments_today=assignments_today, quiz=quiz, assignments=assignments, timetable_c=timetable_c, timetable_d=timetable_d, datetime=datetime, len=len, Change=Change, and_=and_, day=day)
 
 @app.route('/forms')
 @login_required
 def forms():
     return render_template('forms.html', datetime=datetime)
+
+# log
+@app.route('/log')
+def log_list():
+    logs = Log.query.order_by(desc(Log.created_at)).all()
+    return render_template('log_list.html', logs=logs, datetime=datetime)
 
 # user
 @app.route('/users')
@@ -158,7 +164,7 @@ def assignment_list():
 def assignment_detail(id):
     assignment = Assignment.query.get_or_404(id)
     assignments = Assignment.query.order_by(Assignment.deadline, Assignment.name).all()
-    return render_template('assignment_detail.html', assignment=assignment, assignments=assignments)
+    return render_template('assignment_detail.html', assignment=assignment, assignments=assignments, User=User)
 
 @app.get('/assignment/<id>/edit')
 def assignment_edit(id):
@@ -196,6 +202,10 @@ def add_assignment():
 
 @app.post('/add_assignment')
 def post_assignment():
+    if current_user.is_authenticated:
+        author = current_user.id
+    else:
+        author = None
     form_name = request.form.get('name')  # str
     form_subject = request.form.get('subject')  # str
     form_method = request.form.get('method')  # str
@@ -211,6 +221,7 @@ def post_assignment():
         deadline=form_deadline,
         year=form_year,
         group=form_group,
+        author=author
     )
     db.session.add(assignment)
     db.session.commit()
@@ -267,6 +278,8 @@ def add_quiz():
 
 @app.post('/add_quiz')
 def post_quiz():
+    if current_user.is_authenticated:
+        author = current_user.id
     form_name = request.form.get('name')  # str
     form_subject = request.form.get('subject')  # str
     form_implementation_date = request.form.get('implementation_date')  # str
@@ -280,6 +293,7 @@ def post_quiz():
         implementation_date=form_implementation_date,
         year=form_year,
         group=form_group,
+        author=author
     )
     db.session.add(quiz)
     db.session.commit()
@@ -318,6 +332,8 @@ def add_examination():
 
 @app.post('/add_examination')
 def post_examination():
+    if current_user.is_authenticated:
+        author = current_user.id
     form_name = request.form.get('name')  # str
     form_subject = request.form.get('subject')  # str
     form_term = request.form.get('term')  # str
@@ -330,6 +346,7 @@ def post_examination():
         term=form_term,
         medium=form_medium,
         year=form_year,
+        author=author
     )
     db.session.add(examination)
     db.session.commit()
@@ -343,6 +360,8 @@ def add_timetable():
 
 @app.post('/add_timetable')
 def post_timetable():
+    if current_user.is_authenticated:
+        author = current_user.id
     form_week = request.form.get('week')  # str
     form_day = request.form.get('day')  # str
     form_first = request.form.get('first')  # str
@@ -362,11 +381,44 @@ def post_timetable():
         fifth=form_fifth,
         year=form_year,
         group=form_group,
+        author=author
     )
     db.session.add(timetable)
     db.session.commit()
     Logging(current_user, f'TIMETABLE_ADD {timetable.id}')
     return redirect(url_for('add_timetable'))
+
+# change
+@app.route('/change')
+def change_list():
+    changes = Change.query.order_by(desc(Change.date)).all()
+    return render_template('change_list.html', changes=changes)
+
+@app.post('/add_change')
+def post_change():
+    if current_user.is_authenticated:
+        author = current_user.id
+    else:
+        author = None
+    from_date = request.form.get('date')  # str
+    from_date = datetime.datetime.strptime(from_date, '%Y-%m-%d')
+    form_subject = request.form.get('subject')  # str
+    form_period = request.form.get('period', type=int)  # str
+    form_group = request.form.get('group', default='G')  # str
+    form_year = request.form.get('year', default=1, type=int) # int
+
+    change = Change(
+        year=form_year,
+        group=form_group,
+        date=from_date,
+        period=form_period,
+        subject=form_subject,
+        author=author
+    )
+    db.session.add(change)
+    db.session.commit()
+    Logging(current_user, f'CHANGE_ADD {change.id}')
+    return redirect(url_for('change_list'))
 
 # image
 @app.get('/add_image')

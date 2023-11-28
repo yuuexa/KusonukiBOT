@@ -8,6 +8,12 @@
             <form action="{{ url_for('assignment_update', id=assignment.id) }}" method="POST" class="Form">
                 <div class="Form-Item">
                     <p class="Form-Item-Label"><span class="Form-Item-Label-Required">必須</span>クラス</p>
+                    <select name="year" class="Form-Item-Input">
+                        <option value="{{ current_user.year }}" hidden>{{ current_user.year }}</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
                     <select name="group" class="Form-Item-Input" required>
                         <option value="{{ assignment.group }}" hidden>{{ assignment.group }}</option>
                         <option value="A">A</option>
