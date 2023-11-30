@@ -60,7 +60,6 @@ def index():
         day = today
     else:
         day = today + datetime.timedelta(days=1)
-
     quiz = Quiz.query.filter(and_(Quiz.implementation_date == day, Quiz.group.in_([UserGroup(current_user), 'ALL']))).order_by(Quiz.subject, Quiz.name).all()
     assignments = Assignment.query.filter(and_(Assignment.deadline >= today, Assignment.group.in_([UserGroup(current_user), 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
     assignments_today = Assignment.query.filter(and_(Assignment.deadline == today, Assignment.group.in_([UserGroup(current_user), 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
