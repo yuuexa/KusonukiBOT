@@ -18,9 +18,6 @@ app.config['SECRET_KEY'] = "secret"
 
 weekday = ['月', '火', '水', '木', '金', '月', '月']
 
-today = datetime.datetime.today().date()
-author = 'GUEST'
-
 @login.user_loader
 def load_user(id):
   return User.query.get(id)
@@ -58,6 +55,7 @@ def logout():
 @app.route('/')
 @login_required
 def index():
+    today = datetime.datetime.today().date()
     if datetime.datetime.now().hour >= 0 and datetime.datetime.now().hour < 18:
         day = today
     else:
@@ -68,7 +66,6 @@ def index():
     assignments_today = Assignment.query.filter(and_(Assignment.deadline == today, Assignment.group.in_([UserGroup(current_user), 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
     timetable_c = Timetable.query.filter(Timetable.week_day == f'C{weekday[day.weekday()]}', Timetable.group == UserGroup(current_user)).first()
     timetable_d = Timetable.query.filter(Timetable.week_day == f'D{weekday[day.weekday()]}', Timetable.group == UserGroup(current_user)).first()
-    print(Change.query.filter(and_(Change.date == day, Change.period == 1)).first())
     return render_template('index.html', assignments_today=assignments_today, quiz=quiz, assignments=assignments, timetable_c=timetable_c, timetable_d=timetable_d, datetime=datetime, len=len, Change=Change, and_=and_, day=day)
 
 @app.route('/forms')
@@ -155,6 +152,7 @@ def post_user():
 # assignment
 @app.route('/assignments')
 def assignment_list():
+    today = datetime.datetime.today().date()
     assignments_today = Assignment.query.filter(and_(Assignment.deadline >= today, Assignment.group.in_([UserGroup(current_user), 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
     assignments_yesterday = Assignment.query.filter(and_(Assignment.deadline < today, Assignment.group.in_([UserGroup(current_user), 'ALL']))).order_by(Assignment.deadline, Assignment.name).all()
     assignments = Assignment.query.order_by(Assignment.deadline, Assignment.name).all()
@@ -202,10 +200,9 @@ def add_assignment():
 
 @app.post('/add_assignment')
 def post_assignment():
+    author = None
     if current_user.is_authenticated:
         author = current_user.id
-    else:
-        author = None
     form_name = request.form.get('name')  # str
     form_subject = request.form.get('subject')  # str
     form_method = request.form.get('method')  # str
@@ -231,6 +228,7 @@ def post_assignment():
 # quiz
 @app.route('/quiz')
 def quiz_list():
+    today = datetime.datetime.today().date()
     quiz_today = Quiz.query.filter(and_(Quiz.implementation_date >= today, Quiz.group.in_([UserGroup(current_user), 'ALL']))).order_by(Quiz.implementation_date, Quiz.name).all()
     quiz_yesterday = Quiz.query.filter(and_(Quiz.implementation_date < today, Quiz.group.in_([UserGroup(current_user), 'ALL']))).order_by(Quiz.implementation_date, Quiz.name).all()
     quiz = Quiz.query.order_by(Quiz.implementation_date, Quiz.name).all()
@@ -278,6 +276,7 @@ def add_quiz():
 
 @app.post('/add_quiz')
 def post_quiz():
+    author = None
     if current_user.is_authenticated:
         author = current_user.id
     form_name = request.form.get('name')  # str
@@ -332,6 +331,7 @@ def add_examination():
 
 @app.post('/add_examination')
 def post_examination():
+    author = None
     if current_user.is_authenticated:
         author = current_user.id
     form_name = request.form.get('name')  # str
@@ -360,6 +360,7 @@ def add_timetable():
 
 @app.post('/add_timetable')
 def post_timetable():
+    author = None
     if current_user.is_authenticated:
         author = current_user.id
     form_week = request.form.get('week')  # str
@@ -396,10 +397,9 @@ def change_list():
 
 @app.post('/add_change')
 def post_change():
+    author = None
     if current_user.is_authenticated:
         author = current_user.id
-    else:
-        author = None
     from_date = request.form.get('date')  # str
     from_date = datetime.datetime.strptime(from_date, '%Y-%m-%d')
     form_subject = request.form.get('subject')  # str

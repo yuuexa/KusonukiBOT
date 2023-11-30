@@ -137,7 +137,7 @@ def handle_message(event):
             elif args[1] in day_list:
                 timetable = Timetable.query.filter(Timetable.group == user.group, Timetable.week_day == args[1]).first()
                 if timetable is not None:
-                    reply_message = TextSendMessage(text=f'［ {args[1]} の時間割 ］\n① {timetable.first}\n② {timetable.second}\n③ {timetable.third}\n④ {timetable.forth}\n⑤ {timetable.fifth}')
+                    reply_message = TextSendMessage(text=f'［ {args[1]} の時間割 ］\n① {timetable.first}\n② {timetable.second}\n③ {timetable.third}\n④ {timetable.fourth}\n⑤ {timetable.fifth}')
                 else:
                     reply_message = web_button('時間割が存在しません。\n下記から時間割を追加できます。', 'timetable', '')
             else:
