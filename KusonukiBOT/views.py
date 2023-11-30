@@ -237,7 +237,7 @@ def quiz_list():
 def quiz_detail(id):
     quiz = Quiz.query.get_or_404(id)
     quiz_all = Quiz.query.order_by(Quiz.implementation_date, Quiz.name).all()
-    return render_template('quiz_detail.html', quiz=quiz, quiz_all=quiz_all)
+    return render_template('quiz_detail.html', quiz=quiz, quiz_all=quiz_all, User=User)
 
 @app.get('/quiz/<id>/edit')
 def quiz_edit(id):
